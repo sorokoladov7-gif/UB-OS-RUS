@@ -1,0 +1,5 @@
+{
+  "installCommand": "corepack enable && pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm --filter @ub-os/web build",
+  "framework": "nextjs"
+}
