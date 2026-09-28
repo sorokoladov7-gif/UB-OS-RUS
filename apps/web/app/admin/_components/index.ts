@@ -4,3 +4,8 @@ export { AdminOwnerCard } from "./admin-owner-card";
 export { OrganizationsModule } from "./organizations-module";
 export { PlansModule } from "./plans-module";
 export { PaymentsModule } from "./payments-module";
+export { UsersModule } from "./users-module";
+export { SubscriptionsModule } from "./subscriptions-module";
+export { IntegrationsModule } from "./integrations-module";
+export { AuditModule } from "./audit-module";
+export { AiModule } from "./ai-module";
