@@ -30,6 +30,10 @@ export {
   shouldRunWorkflow,
 } from "./workflow";
 
+export { executeWorkflowPlan } from "./workflow-executor";
+
+export type { WorkflowActionExecutor, WorkflowExecutionResult } from "./workflow-executor";
+
 export type {
   WorkflowAction,
   WorkflowActionType,
