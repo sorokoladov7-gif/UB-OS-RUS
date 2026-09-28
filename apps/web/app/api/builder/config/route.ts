@@ -5,5 +5,6 @@ else if(b.action==="upsert_field")({data,error}=await supabase.rpc("upsert_entit
 else if(b.action==="delete_field")({data,error}=await supabase.rpc("delete_entity_field",{p_field_id:b.fieldId}));
 else if(b.action==="upsert_status")({data,error}=await supabase.rpc("upsert_entity_status",{p_entity_id:b.entityId,p_status_id:b.statusId??null,p_key:b.key,p_name:b.name,p_position:Number(b.position??0),p_is_default:!!b.isDefault,p_is_terminal:!!b.isTerminal,p_config:b.config??{}}));
 else if(b.action==="delete_status")({data,error}=await supabase.rpc("delete_entity_status",{p_status_id:b.statusId}));
+else if(b.action==="create_relation")({data,error}=await supabase.rpc("create_relation_definition",{p_workspace_id:b.workspaceId,p_from_entity_id:b.fromEntityId,p_to_entity_id:b.toEntityId,p_key:b.key,p_name:b.name,p_relation_type:b.relationType??"many_to_one",p_config:b.config??{}}));
 else return NextResponse.json({error:"Неизвестная операция"},{status:400});
 if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json(data??{ok:true});}
