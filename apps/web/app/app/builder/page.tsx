@@ -1,10 +1,2 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { BusinessBuilder } from "./builder";
-export default async function BuilderPage(){
- const supabase=await createSupabaseServerClient(); const {data:claims}=await supabase.auth.getClaims(); if(!claims?.claims?.sub) redirect("/login");
- const {data:membership}=await supabase.from("memberships").select("organization_id").eq("user_id",claims.claims.sub).eq("status","active").maybeSingle(); if(!membership) redirect("/onboarding");
- const {data:workspace}=await supabase.from("workspaces").select("id,name").eq("organization_id",membership.organization_id).order("created_at").limit(1).maybeSingle(); if(!workspace) redirect("/onboarding");
- const {data:entities}=await supabase.from("entity_definitions").select("id,key,name,description").eq("workspace_id",workspace.id).order("name");
- return <BusinessBuilder workspace={workspace} entities={entities??[]}/>;
-}
+import {redirect} from "next/navigation"; import {getWorkspaceContext} from "@/lib/workspace"; import {createSupabaseServerClient} from "@/lib/supabase/server"; import {BuilderShell} from "./builder-shell"; import {BusinessBuilder} from "./builder"; import {EntityList} from "./entity-list";
+export default async function Page(){const context=await getWorkspaceContext();if(!context?.membership||!context.activeWorkspace)redirect("/onboarding");const supabase=await createSupabaseServerClient();const {data:entities}=await supabase.from("entity_definitions").select("id,key,name,description").eq("workspace_id",context.activeWorkspace.id).order("name");return <BuilderShell><div style={{color:"#8f9ab0",fontSize:12,letterSpacing:".12em"}}>UB OS-RUS · UNIVERSAL BUILDER</div><h1 style={{fontSize:42,margin:"8px 0"}}>Конструктор бизнеса</h1><p style={{color:"#aab2c3"}}>Собирайте отраслевую систему из сущностей, полей, статусов, связей и будущих автоматизаций.</p><div style={{display:"grid",gap:22,marginTop:28}}><BusinessBuilder workspace={context.activeWorkspace}/><EntityList entities={entities??[]}/></div></BuilderShell>}
