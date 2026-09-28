@@ -6,6 +6,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) redirect("/login?mode=signup");
+  const { error: ownerClaimError } = await supabase.rpc("claim_platform_owner_for_primary_account");
+  if (ownerClaimError) redirect("/login?mode=signup&error=platform-owner");
   const params = await searchParams;
   const { data: plans } = await supabase.from("subscription_plans").select("key,name,description,price_monthly,trial_days,features").eq("enabled", true).order("position");
   const selected = params.plan && plans?.some((p) => p.key === params.plan) ? params.plan : plans?.[0]?.key;
