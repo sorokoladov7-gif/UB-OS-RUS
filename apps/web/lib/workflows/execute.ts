@@ -1,5 +1,53 @@
-import { buildExecutionPlan, executeWorkflowPlan, type WorkflowContext, type WorkflowDefinition, type WorkflowAction } from "@ub-os/core";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+type WorkflowAction = { type: string; config: Record<string, unknown> };
+type WorkflowCondition = { field: string; operator: string; value?: unknown };
+type WorkflowDefinition = {
+  id: string; workspaceId: string; name: string; enabled: boolean;
+  triggerType: string; triggerConfig: Record<string, unknown>;
+  conditions: WorkflowCondition[]; actions: WorkflowAction[];
+};
+type WorkflowContext = {
+  record?: Record<string, unknown>;
+  previousRecord?: Record<string, unknown>;
+  event?: Record<string, unknown>;
+};
+function pathValue(object: Record<string, unknown> | undefined, path: string): unknown {
+  if (!object) return undefined;
+  return path.split(".").reduce<unknown>((current, key) => {
+    if (current === null || typeof current !== "object") return undefined;
+    return (current as Record<string, unknown>)[key];
+  }, object);
+}
+function matches(condition: WorkflowCondition, context: WorkflowContext): boolean {
+  const value = pathValue(context.record, condition.field);
+  switch (condition.operator) {
+    case "equals": return value === condition.value;
+    case "not_equals": return value !== condition.value;
+    case "contains": return typeof value === "string" && value.includes(String(condition.value ?? ""));
+    case "not_contains": return typeof value !== "string" || !value.includes(String(condition.value ?? ""));
+    case "exists": return value !== undefined && value !== null;
+    case "not_exists": return value === undefined || value === null;
+    case "gt": return typeof value === "number" && value > Number(condition.value);
+    case "gte": return typeof value === "number" && value >= Number(condition.value);
+    case "lt": return typeof value === "number" && value < Number(condition.value);
+    case "lte": return typeof value === "number" && value <= Number(condition.value);
+    default: return false;
+  }
+}
+function buildExecutionPlan(workflow: WorkflowDefinition, context: WorkflowContext) {
+  if (!workflow.enabled || !workflow.conditions.every((condition) => matches(condition, context))) return null;
+  return { workflowId: workflow.id, actions: workflow.actions };
+}
+async function executeWorkflowPlan(
+  plan: { workflowId: string; actions: WorkflowAction[] },
+  context: WorkflowContext,
+  executor: { execute(action: WorkflowAction, context: WorkflowContext): Promise<Record<string, unknown> | void> },
+) {
+  const results: Array<Record<string, unknown> | void> = [];
+  for (const action of plan.actions) results.push(await executor.execute(action, context));
+  return { workflowId: plan.workflowId, executedActions: plan.actions.length, results };
+}
 
 type WorkflowRow = {
   id: string; workspace_id: string; name: string; enabled: boolean;
