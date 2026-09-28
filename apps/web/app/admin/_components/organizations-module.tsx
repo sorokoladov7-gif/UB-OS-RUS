@@ -1,0 +1,5 @@
+import type { AdminOrganization } from "../types";
+export function OrganizationsModule({organizations}:{organizations:AdminOrganization[]}) {
+  const heads=["Организация","Тариф","Статус","Пользователи","Создана"];
+  return <section style={{marginTop:24}}><h2 style={{fontSize:22}}>Организации клиентов</h2><div style={{overflowX:"auto",border:"1px solid #303747",borderRadius:16}}><table style={{width:"100%",borderCollapse:"collapse",minWidth:720}}><thead><tr>{heads.map(h=><th key={h} style={{textAlign:"left",padding:13,color:"#8f9ab0",fontSize:12,borderBottom:"1px solid #303747"}}>{h}</th>)}</tr></thead><tbody>{organizations.map(x=><tr key={x.id}>{[x.name,x.plan_name,x.subscription_status,x.members,new Date(x.created_at).toLocaleDateString("ru-RU")].map((v,i)=><td key={i} style={{padding:13,borderBottom:"1px solid #202532",fontSize:14}}>{String(v)}</td>)}</tr>)}</tbody></table>{organizations.length===0&&<div style={{padding:24,color:"#aab2c3"}}>Пока нет организаций клиентов.</div>}</div></section>;
+}
