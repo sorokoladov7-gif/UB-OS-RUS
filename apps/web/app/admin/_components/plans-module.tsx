@@ -1,0 +1,4 @@
+import type { AdminPlan } from "../types";
+export function PlansModule({plans}:{plans:AdminPlan[]}) {
+  return <section style={{marginTop:28}}><h2 style={{fontSize:22}}>Тарифы</h2><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:12}}>{plans.map(p=><div key={p.id} style={{padding:18,border:"1px solid #303747",borderRadius:16,background:"#121620"}}><strong>{p.name}</strong><div style={{marginTop:8,fontSize:20}}>{Number(p.price_monthly).toLocaleString("ru-RU")} ₽/мес.</div><div style={{color:"#aab2c3",fontSize:13,marginTop:5}}>{p.trial_days} дней trial · {p.enabled?"включён":"выключен"}</div></div>)}</div></section>;
+}
