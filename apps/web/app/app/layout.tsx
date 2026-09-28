@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const context = await getWorkspaceContext();
-  if (!context?.activeWorkspace) redirect("/onboarding");
+  if (!context?.activeWorkspace || !context.membership) redirect("/onboarding");
 
   const supabase = await createSupabaseServerClient();
   const { data: subscription } = await supabase
