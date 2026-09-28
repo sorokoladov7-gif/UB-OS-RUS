@@ -8,7 +8,7 @@ export default async function AppPage() {
 
   if (!context?.membership) {
     return (
-      <div style={{position:"fixed",top:18,right:18,zIndex:10}}><a href="/app/builder" style={{padding:"10px 14px",border:"1px solid #303747",borderRadius:12,color:"#fff",background:"#121620",textDecoration:"none"}}>Конструктор бизнеса</a></div><main style={{ maxWidth: 760, margin: "0 auto", padding: 40, fontFamily: "system-ui" }}>
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: 40, fontFamily: "system-ui" }}>
         <h1>UB OS-RUS</h1>
         <p>Нет активного Workspace.</p>
       </main>
@@ -41,7 +41,7 @@ export default async function AppPage() {
           <h1 style={{ margin: "6px 0" }}>{workspace?.name ?? "Workspace"}</h1>
           <p style={{ margin: 0, opacity: 0.7 }}>Universal Business Operating System</p>
         </div>
-        <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><Link href="/app/builder" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>Конструктор бизнеса</Link>
           {isPlatformOwner && <Link href="/admin" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>⚙ Админ платформы</Link>}
           <div style={{ padding: 12, border: "1px solid #ddd", borderRadius: 12 }}>
             Организаций: {new Set(context.workspaces.map((w) => w.organization_id)).size}
