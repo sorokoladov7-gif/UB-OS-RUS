@@ -59,7 +59,7 @@ export default async function AppPage() {
           {!subscription.external_payment_method_id && (
             <div style={{ marginTop: 14 }}>
               <SbpBindButton />
-              <div style={{ marginTop: 7, fontSize: 12, opacity: 0.65 }}>СБП используется для будущего ежемесячного автопродления после окончания 10-дневного trial.</div>
+              <div style={{ marginTop: 7, fontSize: 12, opacity: 0.65 }}>СБП привязывается без списания денег. Первое списание — после окончания 10-дневного пробного периода.</div>
             </div>
           )}
         </section>
