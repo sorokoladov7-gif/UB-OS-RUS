@@ -8,7 +8,7 @@ export default async function AppPage() {
 
   if (!context?.membership) {
     return (
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: 40, fontFamily: "system-ui" }}>
+      <div style={{position:"fixed",top:18,right:18,zIndex:10}}><a href="/app/builder" style={{padding:"10px 14px",border:"1px solid #303747",borderRadius:12,color:"#fff",background:"#121620",textDecoration:"none"}}>Конструктор бизнеса</a></div><main style={{ maxWidth: 760, margin: "0 auto", padding: 40, fontFamily: "system-ui" }}>
         <h1>UB OS-RUS</h1>
         <p>Нет активного Workspace.</p>
       </main>
