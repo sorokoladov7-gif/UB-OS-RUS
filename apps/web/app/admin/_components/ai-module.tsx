@@ -1,0 +1,4 @@
+import type { AdminModuleStats } from "../modules";
+export function AiModule({stats}:{stats:AdminModuleStats}) {
+ return <section><h2>AI и агенты</h2><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12}}><div style={{padding:18,border:"1px solid #303747",borderRadius:16}}>AI-агенты<strong style={{display:"block",fontSize:27}}>{stats.ai_agents}</strong></div><div style={{padding:18,border:"1px solid #303747",borderRadius:16}}>AI-запуски<strong style={{display:"block",fontSize:27}}>{stats.ai_runs}</strong></div></div><p style={{color:"#9ea8ba"}}>Глобальный AI-контур подключается отдельно от бизнес-логики организаций.</p></section>;
+}
