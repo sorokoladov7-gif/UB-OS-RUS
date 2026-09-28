@@ -20,7 +20,7 @@ export default async function BillingRequiredPage() {
           {subscription?.status==="trialing" ? "10-дневный пробный период завершён." : "Текущий период подписки завершён или оплата не прошла."}
         </p>
         {plan && <p>Тариф: <strong>{plan.name}</strong> · {Number(plan.price_monthly).toLocaleString("ru-RU")} ₽/мес.</p>}
-        <p style={{color:"#aab2c3"}}>Оплата проходит через СБП. При первом платеже можно сохранить способ оплаты для последующих автопродлений, если выбранный банк поддерживает эту возможность. citeturn0search0</p>
+        <p style={{color:"#aab2c3"}}>Оплата проходит через СБП. При первом платеже можно сохранить способ оплаты для последующих автопродлений, если выбранный банк поддерживает эту возможность.</p>
         <BindButton />
         <p style={{marginTop:22}}><Link href="/" style={{color:"white"}}>Вернуться на главную</Link></p>
       </section>
