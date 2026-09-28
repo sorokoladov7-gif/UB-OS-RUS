@@ -1,0 +1,1 @@
+import { AdminShell, PlansModule } from "../_components"; import { getPlatformAdminDashboard } from "../data"; export default async function Page(){const d=await getPlatformAdminDashboard();return <AdminShell><PlansModule plans={d.plans}/></AdminShell>;}
