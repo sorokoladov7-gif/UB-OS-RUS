@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { executeWorkflowById } from "./execute";
-import type { WorkflowTriggerType } from "@ub-os/core";
+type WorkflowTriggerType = "record_created" | "record_updated" | "record_status_changed";
 
 type RecordEvent = {
   workspaceId: string;
