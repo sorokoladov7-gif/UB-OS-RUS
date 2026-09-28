@@ -1,0 +1,5 @@
+import type { AdminPayment } from "../types";
+export function PaymentsModule({payments}:{payments:AdminPayment[]}) {
+  const heads=["Организация","Тариф","Сумма","Статус","Дата"];
+  return <section style={{marginTop:28}}><h2 style={{fontSize:22}}>Последние платежи</h2><div style={{overflowX:"auto",border:"1px solid #303747",borderRadius:16}}><table style={{width:"100%",borderCollapse:"collapse",minWidth:650}}><thead><tr>{heads.map(h=><th key={h} style={{textAlign:"left",padding:13,color:"#8f9ab0",fontSize:12,borderBottom:"1px solid #303747"}}>{h}</th>)}</tr></thead><tbody>{payments.slice(0,20).map(p=><tr key={p.id}>{[p.organization_name,p.plan_name,Number(p.amount).toLocaleString("ru-RU")+" "+p.currency,p.status,new Date(p.created_at).toLocaleString("ru-RU")].map((v,i)=><td key={i} style={{padding:13,borderBottom:"1px solid #202532",fontSize:14}}>{String(v)}</td>)}</tr>)}</tbody></table>{payments.length===0&&<div style={{padding:24,color:"#aab2c3"}}>Платежей пока нет — это нормально во время trial.</div>}</div></section>;
+}
