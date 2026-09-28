@@ -1,0 +1,1 @@
+import { AdminShell, UsersModule } from "../_components"; import { getAdminModuleStats } from "../modules-data"; export default async function Page(){const s=await getAdminModuleStats();return <AdminShell><UsersModule stats={s}/></AdminShell>;}
