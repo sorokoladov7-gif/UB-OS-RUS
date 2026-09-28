@@ -15,19 +15,13 @@ export default async function BillingRequiredPage() {
     <main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#0b0d12",color:"white",fontFamily:"system-ui",padding:20}}>
       <section style={{maxWidth:640,padding:32,border:"1px solid #303747",borderRadius:22,background:"#121620"}}>
         <div style={{fontSize:13,color:"#9ea8ba"}}>UB OS-RUS · ПОДПИСКА</div>
-        <h1>Нужно продлить доступ</h1>
+        <h1>Продлите доступ к системе</h1>
         <p style={{color:"#aab2c3",lineHeight:1.6}}>
           {subscription?.status==="trialing" ? "10-дневный пробный период завершён." : "Текущий период подписки завершён или оплата не прошла."}
         </p>
         {plan && <p>Тариф: <strong>{plan.name}</strong> · {Number(plan.price_monthly).toLocaleString("ru-RU")} ₽/мес.</p>}
-        {!subscription?.external_payment_method_id ? (
-          <>
-            <p style={{color:"#aab2c3"}}>Подключите СБП. После подтверждения система сможет автоматически продлевать подписку ежемесячно.</p>
-            <BindButton />
-          </>
-        ) : (
-          <p>Способ оплаты СБП уже привязан. Ожидаем обработку продления.</p>
-        )}
+        <p style={{color:"#aab2c3"}}>Оплата проходит через СБП. При первом платеже можно сохранить способ оплаты для последующих автопродлений, если выбранный банк поддерживает эту возможность. citeturn0search0</p>
+        <BindButton />
         <p style={{marginTop:22}}><Link href="/" style={{color:"white"}}>Вернуться на главную</Link></p>
       </section>
     </main>
