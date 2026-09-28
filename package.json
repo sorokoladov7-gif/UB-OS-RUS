@@ -10,7 +10,7 @@
     "build": "npm run build --workspace=@ub-os/web"
   },
   "dependencies": {
-    "next": "15.5.0",
+    "next": "15.5.26",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "@supabase/ssr": "0.7.0",
