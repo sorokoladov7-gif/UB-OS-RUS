@@ -13,3 +13,4 @@ export async function POST(req:Request){
  const {data,error}=await s.rpc("admin_update_membership",{p_membership_id:b.membershipId,p_status:b.status,p_default_role_key:b.defaultRoleKey??""});
  if(error)return NextResponse.json({error:error.message},{status:400}); return NextResponse.json(data);
 }
+export async function DELETE(req:Request){const s=await createSupabaseServerClient();const {data:c}=await s.auth.getClaims();if(!c?.claims?.sub)return NextResponse.json({error:"Не авторизован"},{status:401});const id=new URL(req.url).searchParams.get("id");const {data,error}=await s.rpc("admin_remove_membership",{p_membership_id:id});if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json(data)}
