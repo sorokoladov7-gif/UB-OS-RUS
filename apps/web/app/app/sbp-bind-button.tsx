@@ -18,7 +18,7 @@ export default function SbpBindButton() {
   return (
     <div>
       <button onClick={bind} disabled={busy} style={{ padding: "12px 16px", borderRadius: 12, border: 0, fontWeight: 800 }}>
-        {busy ? "Открываем СБП…" : "Подключить автопродление через СБП"}
+        {busy ? "Открываем привязку СБП…" : "Бесплатно привязать СБП для автопродления"}
       </button>
       {error && <div style={{ marginTop: 8, color: "#b42318", fontSize: 13 }}>{error}</div>}
     </div>
