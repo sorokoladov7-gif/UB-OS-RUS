@@ -4,11 +4,14 @@
 
 Universal multi-tenant operating system for businesses and service organizations.
 
-### Architecture
+### Commercial model
 
-**Organization -> Workspace -> Entity -> Record -> Relations -> Workflow -> Actions**
-
-The platform is industry-neutral. CRM, sales, services, products, inventory, finance, projects, employees, documents, support and reports are installable business modules. Restaurant, retail, construction, manufacturing, automotive, beauty, education, logistics and professional-services capabilities are industry packages on top of the same core.
+- Every new organization selects a plan during onboarding.
+- Each plan starts with a **10-day trial**.
+- After the trial, access requires an active subscription.
+- Payments are designed for **SBP through YooKassa**.
+- Where supported, the first paid SBP transaction can enable subsequent automatic renewals.
+- The platform has exactly **one platform owner/admin**; customer organization owners are separate from the platform administrator.
 
 ### Platform layers
 
@@ -22,25 +25,14 @@ The platform is industry-neutral. CRM, sales, services, products, inventory, fin
 
 ### Stack
 
-Next.js, TypeScript, React, PostgreSQL/Supabase, Vercel, GitHub and pnpm workspace.
-
-### Repository
-
-- `apps/web` — web application and server API
-- `packages/core` — domain contracts and workflow engine
-- `packages/config` — shared configuration
-- `packages/ui` — shared UI primitives
-- `docs/architecture` — architecture and decisions
-- `docs/database` — database design
-- `docs/roadmap` — implementation roadmap
-- `docs/workflows` — workflow execution
-- `supabase/migrations` — database migrations
+Next.js, TypeScript, React, PostgreSQL/Supabase, Vercel, GitHub.
 
 ### Security baseline
 
 - strict tenant isolation with PostgreSQL RLS
 - explicit RBAC
+- platform owner/admin stored separately from customer roles
 - no authorization through user-editable metadata
-- server-only secrets
+- server-only payment secrets
 - auditable workflow and AI execution
 - provider-neutral AI and integration adapters
