@@ -4,33 +4,43 @@
 
 Universal multi-tenant operating system for businesses and service organizations.
 
-### Core model
+### Architecture
 
-Organization -> Workspace -> Entity -> Record -> Fields -> Relations -> Workflow -> Actions
+**Organization -> Workspace -> Entity -> Record -> Relations -> Workflow -> Actions**
 
-### Principles
+The platform is industry-neutral. CRM, sales, services, products, inventory, finance, projects, employees, documents, support and reports are installable business modules. Restaurant, retail, construction, manufacturing, automotive, beauty, education, logistics and professional-services capabilities are industry packages on top of the same core.
 
-- multi-tenant by design
-- database-enforced tenant isolation
-- universal metadata-driven business model
-- explicit RBAC and auditability
-- modular business capabilities
-- declarative workflows and automation
-- provider-neutral AI layer
-- integrations through stable adapters
-- industry packages on top of the universal core
+### Platform layers
+
+1. Core tenancy, memberships, RBAC, branches and audit
+2. Universal Business Engine
+3. Workflow Engine
+4. Business modules
+5. Industry packages
+6. AI OS
+7. Integration adapters
 
 ### Stack
 
-Next.js, TypeScript, PostgreSQL/Supabase, Vercel, GitHub, pnpm workspace.
+Next.js, TypeScript, React, PostgreSQL/Supabase, Vercel, GitHub and pnpm workspace.
 
 ### Repository
 
-- `apps/web` — main web application
-- `packages/core` — domain contracts
+- `apps/web` — web application and server API
+- `packages/core` — domain contracts and workflow engine
 - `packages/config` — shared configuration
 - `packages/ui` — shared UI primitives
-- `docs/architecture` — architecture decisions
+- `docs/architecture` — architecture and decisions
 - `docs/database` — database design
 - `docs/roadmap` — implementation roadmap
+- `docs/workflows` — workflow execution
 - `supabase/migrations` — database migrations
+
+### Security baseline
+
+- strict tenant isolation with PostgreSQL RLS
+- explicit RBAC
+- no authorization through user-editable metadata
+- server-only secrets
+- auditable workflow and AI execution
+- provider-neutral AI and integration adapters
