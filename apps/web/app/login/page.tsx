@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -10,7 +10,7 @@ const plans = [
   { key: "pro", name: "Профессиональный", price: 4990, text: "Полный операционный контур" },
 ];
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [mode, setMode] = useState(params.get("mode") === "signup" ? "signup" : "login");
@@ -95,4 +95,9 @@ export default function LoginPage() {
       </div>
     </main>
   );
+}
+
+
+export default function LoginPage() {
+  return <Suspense fallback={<main style={{ minHeight: "100vh", background: "#0b0d12" }} />}><LoginForm /></Suspense>;
 }
