@@ -1,16 +1,2 @@
-import { getPlatformAdminDashboard } from "./data";
-import { AdminShell, AdminStats, AdminOwnerCard, OrganizationsModule, PlansModule, PaymentsModule } from "./_components";
-
-export default async function AdminPage() {
-  const dashboard = await getPlatformAdminDashboard();
-
-  return (
-    <AdminShell>
-      <AdminStats organizations={dashboard.organizations} plans={dashboard.plans} />
-      <AdminOwnerCard ownerUserId={dashboard.owner_user_id} />
-      <OrganizationsModule organizations={dashboard.organizations} />
-      <PlansModule plans={dashboard.plans} />
-      <PaymentsModule payments={dashboard.payments} />
-    </AdminShell>
-  );
-}
+import {getPlatformAdminDashboard} from "./data"; import {getAdminModuleStats} from "./modules-data"; import {AdminShell,AdminStats,AdminOwnerCard,OrganizationsModule,PlansModule,PaymentsModule,UsersModule,SubscriptionsModule,IntegrationsModule,AiModule,AuditModule} from "./_components";
+export default async function AdminPage(){const [dashboard,stats]=await Promise.all([getPlatformAdminDashboard(),getAdminModuleStats()]);return <AdminShell><AdminStats organizations={dashboard.organizations} plans={dashboard.plans}/><AdminOwnerCard ownerUserId={dashboard.owner_user_id}/><section style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:12,marginTop:24}}>{[["Пользователи",stats.memberships,"/admin/users"],["Подписки",stats.subscriptions,"/admin/subscriptions"],["Интеграции",stats.integrations,"/admin/integrations"],["AI-запуски",stats.ai_runs,"/admin/ai"],["Аудит",stats.audit_logs,"/admin/audit"]].map(([label,value,href])=><a key={String(href)} href={String(href)} style={{padding:18,border:"1px solid #303747",borderRadius:16,background:"#121620",color:"#fff",textDecoration:"none"}}><div style={{color:"#9ea8ba",fontSize:12}}>{String(label)}</div><strong style={{display:"block",fontSize:25,marginTop:7}}>{String(value)}</strong><span style={{color:"#7f8aa0",fontSize:12}}>Открыть модуль →</span></a>)}</section><section style={{marginTop:30,display:"grid",gap:18}}><OrganizationsModule organizations={dashboard.organizations}/><UsersModule stats={stats}/><PlansModule plans={dashboard.plans}/><SubscriptionsModule stats={stats}/><PaymentsModule payments={dashboard.payments}/><IntegrationsModule stats={stats}/><AiModule stats={stats}/><AuditModule stats={stats}/></section></AdminShell>}
