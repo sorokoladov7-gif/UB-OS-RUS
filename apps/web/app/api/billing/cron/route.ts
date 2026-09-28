@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       continue;
     }
 
-    await supabase.from("subscription_payments").update({ provider_payment_id: payment.id, status: payment.status === "succeeded" ? "succeeded" : "pending", payment_url: payment.confirmation?.confirmation_url ?? null, updated_at: new Date().toISOString() }).eq("id", inserted.id);
+    await supabase.from("subscription_payments").update({ provider_payment_id: payment.id, status: payment.status === "succeeded" ? "succeeded" : "pending", payment_url: payment.confirmation?.confirmation_url ?? null, updated_at: new Date().toISOString() }).eq("id", paymentRowId);
 
     if (payment.status === "succeeded") {
       await supabase.from("subscriptions").update({ status: "active", current_period_start: periodStart.toISOString(), current_period_end: periodEnd.toISOString(), updated_at: new Date().toISOString() }).eq("id", sub.id);
