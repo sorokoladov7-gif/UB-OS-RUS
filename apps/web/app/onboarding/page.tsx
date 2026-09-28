@@ -9,7 +9,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   await supabase.rpc("claim_platform_owner_for_primary_account");
   const params = await searchParams;
   const { data: plans } = await supabase.from("subscription_plans").select("key,name,description,price_monthly,trial_days,features").eq("enabled", true).order("position");
+  const { data: industries } = await supabase.from("industry_packages").select("key,name,description,version").order("name");
   const selected = params.plan && plans?.some((p) => p.key === params.plan) ? params.plan : plans?.[0]?.key;
   if (!selected) redirect("/login?mode=signup");
-  return <OnboardingForm plans={plans ?? []} selectedPlan={selected} />;
+  return <OnboardingForm plans={plans ?? []} industries={industries ?? []} selectedPlan={selected} />;
 }
