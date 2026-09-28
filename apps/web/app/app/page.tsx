@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getWorkspaceContext } from "@/lib/workspace";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import SbpBindButton from "./sbp-bind-button";
 
 export default async function AppPage() {
   const context = await getWorkspaceContext();
@@ -14,18 +16,27 @@ export default async function AppPage() {
   }
 
   const workspace = context.activeWorkspace;
+  const supabase = await createSupabaseServerClient();
   const { data: entities } = workspace
-    ? await (await import("@/lib/supabase/server")).createSupabaseServerClient()
-        .then((supabase) =>
-          supabase.from("entity_definitions").select("id, key, name, description").eq("workspace_id", workspace.id).order("name")
-        )
+    ? await supabase.from("entity_definitions").select("id, key, name, description").eq("workspace_id", workspace.id).order("name")
     : { data: [] };
+
+  const organizationId = context.membership.organization_id;
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("status,trial_ends_at,current_period_end,external_payment_method_id,subscription_plans(name,price_monthly)")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  const { data: owner } = await supabase.from("platform_settings").select("owner_user_id").eq("id", true).maybeSingle();
+  const isPlatformOwner = owner?.owner_user_id === context.userId;
+  const plan = Array.isArray(subscription?.subscription_plans) ? subscription.subscription_plans[0] : subscription?.subscription_plans;
 
   return (
     <main style={{ maxWidth: 1180, margin: "0 auto", padding: 32, fontFamily: "system-ui" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", gap: 24, alignItems: "center" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 13, opacity: 0.65 }}>UB OS-RUS</div>
+          <div style={{ fontSize: 13, opacity: 0.65 }}>UB OS-RUS {isPlatformOwner ? "· PLATFORM ADMIN" : ""}</div>
           <h1 style={{ margin: "6px 0" }}>{workspace?.name ?? "Workspace"}</h1>
           <p style={{ margin: 0, opacity: 0.7 }}>Universal Business Operating System</p>
         </div>
@@ -34,11 +45,30 @@ export default async function AppPage() {
         </div>
       </header>
 
+      {subscription && (
+        <section style={{ marginTop: 28, padding: 20, border: "1px solid #ddd", borderRadius: 16 }}>
+          <strong>Подписка: {plan?.name ?? "Тариф"}</strong>
+          <div style={{ marginTop: 6, opacity: 0.7 }}>
+            {subscription.status === "trialing"
+              ? "Пробный период до " + new Date(subscription.trial_ends_at).toLocaleDateString("ru-RU")
+              : subscription.status === "active"
+                ? "Активна до " + (subscription.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString("ru-RU") : "—")
+                : "Статус: " + subscription.status}
+          </div>
+          {!subscription.external_payment_method_id && (
+            <div style={{ marginTop: 14 }}>
+              <SbpBindButton />
+              <div style={{ marginTop: 7, fontSize: 12, opacity: 0.65 }}>СБП используется для будущего ежемесячного автопродления после окончания 10-дневного trial.</div>
+            </div>
+          )}
+        </section>
+      )}
+
       <section style={{ marginTop: 36 }}>
         <h2>Бизнес-объекты</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {(entities ?? []).map((entity) => (
-            <Link key={entity.id} href={`/app/entities/${entity.id}`} style={{ textDecoration: "none", color: "inherit", border: "1px solid #ddd", borderRadius: 16, padding: 20 }}>
+            <Link key={entity.id} href={"/app/entities/" + entity.id} style={{ textDecoration: "none", color: "inherit", border: "1px solid #ddd", borderRadius: 16, padding: 20 }}>
               <strong>{entity.name}</strong>
               <div style={{ opacity: 0.6, marginTop: 6 }}>{entity.key}</div>
               {entity.description && <p style={{ opacity: 0.7 }}>{entity.description}</p>}
