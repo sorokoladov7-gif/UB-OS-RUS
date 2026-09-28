@@ -6,7 +6,7 @@ import SbpBindButton from "./sbp-bind-button";
 export default async function AppPage() {
   const context = await getWorkspaceContext();
 
-  if (!context) {
+  if (!context?.membership) {
     return (
       <main style={{ maxWidth: 760, margin: "0 auto", padding: 40, fontFamily: "system-ui" }}>
         <h1>UB OS-RUS</h1>
@@ -16,6 +16,7 @@ export default async function AppPage() {
   }
 
   const workspace = context.activeWorkspace;
+  if (!workspace) { return null; }
   const supabase = await createSupabaseServerClient();
   const { data: entities } = workspace
     ? await supabase.from("entity_definitions").select("id, key, name, description").eq("workspace_id", workspace.id).order("name")
