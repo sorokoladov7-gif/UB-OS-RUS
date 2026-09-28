@@ -6,7 +6,7 @@ import BindButton from "../bind-button";
 
 export default async function BillingRequiredPage() {
   const context = await getWorkspaceContext();
-  if (!context?.activeWorkspace) redirect("/login");
+  if (!context?.activeWorkspace || !context.membership) redirect("/login");
   const supabase = await createSupabaseServerClient();
   const { data: subscription } = await supabase.from("subscriptions").select("status,trial_ends_at,external_payment_method_id,subscription_plans(name,price_monthly)").eq("organization_id",context.membership.organization_id).maybeSingle();
   const plan = Array.isArray(subscription?.subscription_plans) ? subscription.subscription_plans[0] : subscription?.subscription_plans;
