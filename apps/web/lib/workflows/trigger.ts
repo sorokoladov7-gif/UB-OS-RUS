@@ -43,17 +43,19 @@ export async function triggerWorkflowsForRecord(
       continue;
     }
 
-    results.push(
-      await executeWorkflowById(supabase, workflow.id, {
-        record: event.record,
-        previousRecord: event.previousRecord,
-        event: {
-          type: event.triggerType,
-          recordId: event.recordId,
-          workspaceId: event.workspaceId,
-        },
-      }),
-    );
+    const context = {
+      record: event.record,
+      event: {
+        type: event.triggerType,
+        recordId: event.recordId,
+        workspaceId: event.workspaceId,
+      },
+      ...(event.previousRecord !== undefined
+        ? { previousRecord: event.previousRecord }
+        : {}),
+    };
+
+    results.push(await executeWorkflowById(supabase, workflow.id, context));
   }
 
   return results;
