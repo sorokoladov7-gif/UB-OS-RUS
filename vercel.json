@@ -4,6 +4,6 @@
   "buildCommand": "npm run build --workspace=@ub-os/web",
   "framework": "nextjs",
   "crons": [
-    { "path": "/api/billing/cron", "schedule": "0 * * * *" }
+    { "path": "/api/billing/cron", "schedule": "0 3 * * *" }
   ]
 }
