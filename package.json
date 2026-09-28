@@ -1,1 +1,12 @@
-{"name":"ub-os-rus","private":true,"version":"0.1.0","packageManager":"pnpm@10.15.0"}
+{
+  "name": "ub-os-rus",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@ub-os/web"
+  }
+}
