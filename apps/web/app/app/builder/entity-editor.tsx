@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-type Field={id:string;key:string;name:string;field_type:string;required:boolean;position:number;config:any};
+type Field={id:string;key:string;name:string;field_type:string;required:boolean;position:number;config?:any};
 type Status={id:string;key:string;name:string;position:number;is_default:boolean;is_terminal:boolean;config:any};
 type Entity={id:string;key:string;name:string;description:string|null;config:any};
 const input={padding:11,borderRadius:10,border:"1px solid #303747",background:"#121620",color:"white",width:"100%",boxSizing:"border-box" as const};
