@@ -29,23 +29,40 @@ export async function GET(request: NextRequest) {
     const periodEnd = new Date(periodStart);
     periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-    const { data: inserted } = await supabase.from("subscription_payments").insert({
-      subscription_id: sub.id,
-      status: "pending",
-      amount,
-      currency: "RUB",
-      period_start: periodStart.toISOString(),
-      period_end: periodEnd.toISOString(),
-      metadata: { subscription_id: sub.id, plan_id: sub.plan_id },
-    }).select("id").single();
+    const periodStartIso = periodStart.toISOString();
+    const periodEndIso = periodEnd.toISOString();
 
-    if (!inserted) continue;
+    const { data: existingPayment } = await supabase
+      .from("subscription_payments")
+      .select("id,status,provider_payment_id")
+      .eq("subscription_id", sub.id)
+      .eq("period_start", periodStartIso)
+      .maybeSingle();
+
+    if (existingPayment?.status === "succeeded") continue;
+    if (existingPayment?.status === "pending" && existingPayment.provider_payment_id) continue;
+
+    let paymentRowId = existingPayment?.id ?? null;
+    if (!paymentRowId) {
+      const { data: inserted } = await supabase.from("subscription_payments").insert({
+        subscription_id: sub.id,
+        status: "pending",
+        amount,
+        currency: "RUB",
+        period_start: periodStartIso,
+        period_end: periodEndIso,
+        metadata: { subscription_id: sub.id, plan_id: sub.plan_id },
+      }).select("id").single();
+      paymentRowId = inserted?.id ?? null;
+    }
+
+    if (!paymentRowId) continue;
 
     const response = await fetch("https://api.yookassa.ru/v3/payments", {
       method: "POST",
       headers: {
         Authorization: "Basic " + Buffer.from(shopId + ":" + secretKey).toString("base64"),
-        "Idempotence-Key": inserted.id,
+        "Idempotence-Key": paymentRowId,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -53,14 +70,14 @@ export async function GET(request: NextRequest) {
         capture: true,
         payment_method_id: sub.external_payment_method_id,
         description: "Подписка UB OS-RUS: " + (plan?.name ?? "тариф"),
-        metadata: { subscription_id: sub.id, subscription_payment_id: inserted.id },
+        metadata: { subscription_id: sub.id, subscription_payment_id: paymentRowId },
       }),
       cache: "no-store",
     });
 
     const payment = await response.json();
     if (!response.ok) {
-      await supabase.from("subscription_payments").update({ status: "failed", metadata: { subscription_id: sub.id, error: payment?.description || "YOOKASSA_ERROR" } }).eq("id", inserted.id);
+      await supabase.from("subscription_payments").update({ status: "failed", metadata: { subscription_id: sub.id, error: payment?.description || "YOOKASSA_ERROR" } }).eq("id", paymentRowId);
       continue;
     }
 
