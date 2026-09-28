@@ -1,0 +1,3 @@
+export function AdminOwnerCard({ownerUserId}:{ownerUserId:string}) {
+  return <section style={{marginTop:24,padding:20,border:"1px solid #303747",borderRadius:18,background:"#121620"}}><div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"center",flexWrap:"wrap"}}><div><strong>Владелец платформы</strong><div style={{color:"#aab2c3",fontSize:13,marginTop:5}}>Единственный platform-admin закреплён сервером и не может быть заменён через регистрацию.</div><div style={{color:"#737e92",fontSize:11,marginTop:8,wordBreak:"break-all"}}>ID: {ownerUserId}</div></div><div style={{padding:"8px 12px",borderRadius:10,border:"1px solid #303747",fontSize:12}}>Единственный администратор</div></div></section>;
+}
