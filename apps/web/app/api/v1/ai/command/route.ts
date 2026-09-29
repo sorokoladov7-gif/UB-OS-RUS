@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { NextResponse } from "next/server";
 import { authenticateApiRequest, hasApiScope } from "@/lib/api-gateway";
-import { getOwnAiModel, runAiModel } from "@/lib/ai/model-runtime";
+import { getAiModelForApiKey, runAiModel } from "@/lib/ai/model-runtime";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   if(!hasApiScope(principal,"ai.invoke")) return NextResponse.json({error:"INSUFFICIENT_SCOPE",required:"ai.invoke"},{status:403});
   const body=await request.json().catch(()=>null);
   if(!body?.modelId||!body?.message) return NextResponse.json({error:"modelId и message обязательны"},{status:400});
-  const model=await getOwnAiModel(String(body.modelId),principal.createdBy);
+  const model=await getAiModelForApiKey(String(body.modelId),principal.rawKey);
   if(!model) return NextResponse.json({error:"AI_MODEL_NOT_FOUND"},{status:404});
   try {
     const result=await runAiModel(model,String(body.message),body.system?String(body.system):undefined);
