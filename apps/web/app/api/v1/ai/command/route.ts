@@ -18,8 +18,9 @@ export async function POST(request: Request) {
   try {
     const result=await runAiModel(model,String(body.message),body.system?String(body.system):undefined);
     const supabase=await createSupabaseServerClient();
-    await supabase.from("ai_runs").insert({
-      workspace_id:body.workspaceId||null, provider:result.provider, model:result.model,
+    const workspaceId=body.workspaceId;
+    if(workspaceId) await supabase.from("ai_runs").insert({
+      workspace_id:workspaceId, provider:result.provider, model:result.model,
       status:"completed", input:{message:String(body.message),api_key_id:principal.apiKeyId},
       output:{text:result.text}, started_at:new Date().toISOString(), finished_at:new Date().toISOString(),
     });
