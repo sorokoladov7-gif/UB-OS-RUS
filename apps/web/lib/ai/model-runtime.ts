@@ -58,6 +58,7 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
       messages:[...(system ? [{role:"system",content:system}] : []),{role:"user",content:message}],
       temperature: typeof model.config?.temperature === "number" ? model.config.temperature : 0.2,
       stream:false,
+      ...(provider==="openrouter"?{provider:{allow_fallbacks:true}}:{}),
     }),
     cache:"no-store",
   });
@@ -74,4 +75,60 @@ export async function getDefaultAiModel(): Promise<AiModelRuntime | null> {
   const { data, error } = await supabase.rpc("get_default_ai_model");
   if (error || !data?.[0]) return null;
   return data[0] as AiModelRuntime;
+}
+
+
+function isTransientAiError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return /(^|[^0-9])(408|429|5[0-9]{2})([^0-9]|$)/.test(message) ||
+    /rate.?limit|temporar|timeout|upstream|overloaded|service unavailable/i.test(message);
+}
+
+export async function getFallbackAiModels(excludeId: string): Promise<AiModelRuntime[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims?.sub) return [];
+
+  const { data } = await supabase.rpc("list_ai_model_connections");
+  const rows = Array.isArray(data) ? data : [];
+  const candidates = rows
+    .filter((row:any) => row?.id && row.id !== excludeId && row.enabled !== false)
+    .sort((a:any,b:any) => {
+      const ad = a.is_default ? 1 : 0;
+      const bd = b.is_default ? 1 : 0;
+      return bd - ad;
+    });
+
+  const result: AiModelRuntime[] = [];
+  for (const row of candidates.slice(0, 5)) {
+    const { data: runtime } = await supabase.rpc("get_ai_model_runtime", { p_id: String(row.id) });
+    if (runtime?.[0]?.enabled !== false && runtime?.[0]) result.push(runtime[0] as AiModelRuntime);
+  }
+  return result;
+}
+
+export async function runAiModelWithFallback(
+  primary: AiModelRuntime,
+  message: string,
+  system?: string,
+): Promise<{text:string;provider:string;model:string;fallbackUsed:boolean;requestedModel:string}> {
+  try {
+    const result = await runAiModel(primary, message, system);
+    return {...result, fallbackUsed:false, requestedModel:primary.model};
+  } catch (primaryError) {
+    if (!isTransientAiError(primaryError)) throw primaryError;
+
+    const fallbacks = await getFallbackAiModels(primary.id);
+    let lastError: unknown = primaryError;
+    for (const fallback of fallbacks) {
+      try {
+        const result = await runAiModel(fallback, message, system);
+        return {...result, fallbackUsed:true, requestedModel:primary.model};
+      } catch (fallbackError) {
+        lastError = fallbackError;
+        if (!isTransientAiError(fallbackError)) break;
+      }
+    }
+    throw lastError;
+  }
 }
