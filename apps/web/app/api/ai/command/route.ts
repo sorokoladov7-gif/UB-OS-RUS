@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   const body=await request.json().catch(()=>null);
   if(!body?.modelId || !body?.message) return NextResponse.json({error:"modelId и message обязательны"},{status:400});
 
-  const model=await getOwnAiModel(String(body.modelId),uid);
+  const model=await getOwnAiModel(String(body.modelId));
   if(!model) return NextResponse.json({error:"AI_MODEL_NOT_FOUND"},{status:404});
 
   const started=Date.now();
