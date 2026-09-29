@@ -18,7 +18,7 @@ export async function authenticateApiRequest(request: Request): Promise<ApiPrinc
   const auth = request.headers.get("authorization") ?? "";
   if (!auth.toLowerCase().startsWith("bearer ")) return null;
   const raw = auth.slice(7).trim();
-  if (!raw.startsWith("ub_")) return null;
+  if (!raw.startsWith("ubos_")) return null;
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.rpc("authenticate_platform_api_key", { p_raw_key: raw });
