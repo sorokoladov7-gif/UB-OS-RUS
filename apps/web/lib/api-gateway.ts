@@ -5,6 +5,7 @@ export type ApiPrincipal = {
   createdBy: string;
   scopes: string[];
   expiresAt: string | null;
+  rawKey: string;
 };
 
 function scopesFrom(value: unknown): string[] {
@@ -28,6 +29,7 @@ export async function authenticateApiRequest(request: Request): Promise<ApiPrinc
     createdBy: row.created_by,
     scopes: scopesFrom(row.scopes),
     expiresAt: row.expires_at ?? null,
+    rawKey: raw,
   };
 }
 
