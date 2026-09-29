@@ -100,10 +100,30 @@ export default async function HomePage() {
         </section>
 
         <section style={{marginBottom:110}}>
-          <div style={{maxWidth:760,marginBottom:30}}>
-            <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>BUSINESS ENGINE</div>
-            <h2 style={{fontSize:"clamp(34px,5vw,58px)",letterSpacing:"-.045em",margin:"12px 0"}}>Один фундамент.<br/>Любая структура бизнеса.</h2>
-            <p style={{color:"#929bad",fontSize:18,lineHeight:1.6}}>Ресторан, производство, строительство, магазин, сервисная компания или совершенно новый тип бизнеса — структура не зашита намертво.</p>
+          <div style={{maxWidth:800,marginBottom:30}}>
+            <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>BUSINESS ENGINE / MODULAR CORE</div>
+            <h2 style={{fontSize:"clamp(34px,5vw,58px)",letterSpacing:"-.05em",margin:"12px 0"}}>Не подстраивайте бизнес<br/>под программу.</h2>
+            <p style={{color:"#929bad",fontSize:18,lineHeight:1.6}}>Система подстраивается под ваш бизнес. Ядро остаётся единым, а структура, модули, поля, статусы, роли и процессы собираются под конкретную компанию.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1.1fr .9fr",gap:14,marginBottom:14}}>
+            <div style={{padding:25,border:"1px solid #242d3c",borderRadius:20,background:"#0b0f16"}}>
+              <div style={{fontSize:11,color:"#8e9cff",letterSpacing:1.5}}>BUSINESS BUILDER</div>
+              <div style={{marginTop:16,fontFamily:"monospace",fontSize:13,color:"#b9c1d1",lineHeight:2}}>
+                ENTITY <span style={{color:"#d9ddff"}}>Client</span><br/>
+                ├─ name <span style={{color:"#72dfa3"}}>text</span><br/>
+                ├─ status <span style={{color:"#72dfa3"}}>pipeline</span><br/>
+                ├─ manager <span style={{color:"#72dfa3"}}>user</span><br/>
+                ├─ revenue <span style={{color:"#72dfa3"}}>money</span><br/>
+                └─ next_action <span style={{color:"#72dfa3"}}>date</span>
+              </div>
+              <div style={{marginTop:15,color:"#68758a",fontSize:12}}>Создавайте собственные сущности, поля, связи, формы и статусы без изменения ядра платформы.</div>
+            </div>
+            <div style={{padding:25,border:"1px solid #242d3c",borderRadius:20,background:"linear-gradient(145deg,#101522,#0b0f16)"}}>
+              <div style={{fontSize:11,color:"#8e9cff",letterSpacing:1.5}}>ONE CORE → MANY BUSINESSES</div>
+              <div style={{marginTop:18,display:"grid",gap:9}}>
+                {["Строительство / монтаж","Ресторан / общепит","Розница / магазин","Производство","Сервисная компания","Юридическая практика"].map((x,i)=><div key={x} style={{padding:"10px 12px",border:"1px solid #252e40",borderRadius:9,color:i===0?"#dce0ff":"#8e99aa",fontSize:12,background:i===0?"#161d2d":"#0a0e14"}}>{x}</div>)}
+              </div>
+            </div>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(230px,1fr))",gap:12}}>
             {modules.map(([icon,title,desc])=><div key={title} style={{padding:"20px",border:"1px solid #202632",borderRadius:16,background:"#0b0e14"}}>
