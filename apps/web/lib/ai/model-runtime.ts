@@ -11,11 +11,10 @@ export type AiModelRuntime = {
   api_key: string | null;
 };
 
-export async function getOwnAiModel(id: string, userId?: string): Promise<AiModelRuntime | null> {
+export async function getOwnAiModel(id: string): Promise<AiModelRuntime | null> {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
-  const uid = userId ?? claims?.claims?.sub;
-  if (!uid) return null;
+  if (!claims?.claims?.sub) return null;
   const { data, error } = await supabase.rpc("get_ai_model_runtime", { p_id: id });
   if (error || !data?.[0]) return null;
   return data[0] as AiModelRuntime;
@@ -66,3 +65,4 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   const text = json?.choices?.[0]?.message?.content ?? "";
   return { text, provider:model.provider, model:model.model };
 }
+\nexport async function getAiModelForApiKey(modelId: string, rawKey: string): Promise<AiModelRuntime | null> {\n  const supabase = await createSupabaseServerClient();\n  const { data, error } = await supabase.rpc("get_ai_model_runtime_for_api_key", { p_raw_key: rawKey, p_model_id: modelId });\n  if (error || !data?.[0]) return null;\n  return data[0] as AiModelRuntime;\n}\n
