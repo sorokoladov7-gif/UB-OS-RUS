@@ -68,3 +68,12 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   const text = json?.choices?.[0]?.message?.content ?? "";
   return { text, provider:model.provider, model:model.model };
 }
+
+export async function getDefaultAiModel(): Promise<AiModelRuntime | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims?.sub) return null;
+  const { data, error } = await supabase.rpc("get_default_ai_model");
+  if (error || !data?.[0]) return null;
+  return data[0] as AiModelRuntime;
+}
