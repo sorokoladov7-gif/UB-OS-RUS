@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { authenticateApiRequest, hasApiScope } from "@/lib/api-gateway";
-import { getOwnAiModel, runAiModel } from "@/lib/ai/model-runtime";
+import { getAiModelForApiKey, runAiModel } from "@/lib/ai/model-runtime";
 
 export async function POST(request: Request) {
   const principal=await authenticateApiRequest(request);
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   if(!body?.modelId || !body?.message) return NextResponse.json({error:"modelId и message обязательны"},{status:400});
 
   // Platform API keys execute models owned by the API key creator.
-  const model=await getOwnAiModel(String(body.modelId),principal.createdBy);
+  const model=await getAiModelForApiKey(String(body.modelId),principal.rawKey);
   if(!model) return NextResponse.json({error:"AI_MODEL_NOT_FOUND"},{status:404});
 
   try {
