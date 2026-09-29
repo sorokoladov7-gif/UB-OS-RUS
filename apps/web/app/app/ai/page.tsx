@@ -4,7 +4,7 @@ import {useEffect,useState} from "react";
 
 type Model={id:string;name:string;provider:string;model:string;base_url:string|null;enabled:boolean;has_api_key:boolean};
 
-const providers=[
+const providers: Array<[string,string]> = [
   ["openai","OpenAI / совместимый API"],
   ["openrouter","OpenRouter"],
   ["groq","Groq"],
