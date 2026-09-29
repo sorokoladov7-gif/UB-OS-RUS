@@ -14,7 +14,8 @@ export default function Page(){
  const [models,setModels]=useState<Model[]>([]);
  const [form,setForm]=useState<any>({name:"",provider:"openrouter",model:"",baseUrl:"",apiKey:"",role:"general",priority:100,enabled:true,isDefault:false,capabilities:["text"]});
  const [editing,setEditing]=useState<string|null>(null); const [busy,setBusy]=useState(false); const [msg,setMsg]=useState("");
- const [settings,setSettings]=useState<any>({enabled:true,provider:"",model:""});\n const [catalog,setCatalog]=useState<{id:string;name:string;description?:string}[]>([]); const [catalogBusy,setCatalogBusy]=useState(false);
+ const [settings,setSettings]=useState<any>({enabled:true,provider:"",model:""});
+ const [catalog,setCatalog]=useState<{id:string;name:string;description?:string}[]>([]); const [catalogBusy,setCatalogBusy]=useState(false);
  async function load(){const [a,b]=await Promise.all([fetch("/api/admin/ai/models"),fetch("/api/admin/ai")]);const aj=await a.json(),bj=await b.json();if(a.ok)setModels(aj.items||[]);if(b.ok&&bj.item)setSettings(bj.item)}
  useEffect(()=>{load()},[]);
  function reset(){setForm({name:"",provider:"openrouter",model:"",baseUrl:"",apiKey:"",role:"general",priority:100,enabled:true,isDefault:false,capabilities:["text"]});setEditing(null)}
@@ -35,7 +36,8 @@ function validateBeforeSave(){
   return "";
 }
 async function saveModel(){
-  const validation=validateBeforeSave(); if(validation){setMsg(validation);return;}\n  setBusy(true);setMsg("");
+  const validation=validateBeforeSave(); if(validation){setMsg(validation);return;}
+  setBusy(true);setMsg("");
   const body={...form,id:editing};
   const r=await fetch("/api/admin/ai/models",{method:editing?"PUT":"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
   const j=await r.json();if(r.ok){setMsg(editing?"Модель обновлена":"Модель добавлена");reset();await load()}else setMsg(j.error||"Ошибка сохранения");setBusy(false)
@@ -55,7 +57,9 @@ async function saveModel(){
    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:12}}>
     <label>Название<input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Gemini Production" style={input}/></label>
     <label>Провайдер<select value={form.provider} onChange={e=>setForm({...form,provider:e.target.value})} style={input}>{providers.map(([v,n])=><option key={v} value={v}>{n}</option>)}</select></label>
-    <label>Model ID<input value={form.model} onChange={e=>setForm({...form,model:e.target.value})} placeholder="модель провайдера" style={input}/></label>\n    <div style={{display:"flex",alignItems:"end"}}><button type="button" disabled={catalogBusy} onClick={loadCatalog} style={{...btn,width:"100%"}}>{catalogBusy?"Получение…":"Получить модели"}</button></div>\n    {catalog.length>0&&<label style={{gridColumn:"1/-1"}}>Модель из каталога<select value={catalog.some(x=>x.id===form.model)?form.model:""} onChange={e=>setForm({...form,model:e.target.value})} style={input}><option value="">— выберите модель —</option>{catalog.map(x=><option key={x.id} value={x.id}>{x.id}{x.name&&x.name!==x.id?" — "+x.name:""}</option>)}</select></label>}
+    <label>Model ID<input value={form.model} onChange={e=>setForm({...form,model:e.target.value})} placeholder="модель провайдера" style={input}/></label>
+    <div style={{display:"flex",alignItems:"end"}}><button type="button" disabled={catalogBusy} onClick={loadCatalog} style={{...btn,width:"100%"}}>{catalogBusy?"Получение…":"Получить модели"}</button></div>
+    {catalog.length>0&&<label style={{gridColumn:"1/-1"}}>Модель из каталога<select value={catalog.some(x=>x.id===form.model)?form.model:""} onChange={e=>setForm({...form,model:e.target.value})} style={input}><option value="">— выберите модель —</option>{catalog.map(x=><option key={x.id} value={x.id}>{x.id}{x.name&&x.name!==x.id?" — "+x.name:""}</option>)}</select></label>}
     <label>Роль<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} style={input}>{roles.map(([v,n])=><option key={v} value={v}>{n}</option>)}</select></label>
     <label>Приоритет<input type="number" value={form.priority} onChange={e=>setForm({...form,priority:Number(e.target.value)})} style={input}/></label>
     <label>Base URL<input value={form.baseUrl} onChange={e=>setForm({...form,baseUrl:e.target.value})} placeholder="только для custom/совместимых API" style={input}/></label>
