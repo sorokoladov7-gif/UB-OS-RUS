@@ -37,22 +37,53 @@ export default async function HomePage() {
           </nav>
         </header>
 
-        <section style={{padding:"clamp(72px,12vw,138px) 0 92px",position:"relative"}}>
-          <div style={{position:"absolute",width:520,height:520,borderRadius:"50%",background:"radial-gradient(circle,rgba(83,108,255,.18),transparent 68%)",top:-100,right:-160,pointerEvents:"none"}}/>
-          <div style={{maxWidth:900,position:"relative"}}>
-            <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"8px 12px",border:"1px solid #273042",borderRadius:999,color:"#9faabd",fontSize:12,letterSpacing:1.5}}>
-              <span style={{width:7,height:7,borderRadius:"50%",background:"#73e2a3",display:"inline-block"}}/>
-              UNIVERSAL BUSINESS OPERATING SYSTEM
+        <section style={{padding:"clamp(70px,10vw,120px) 0 70px",position:"relative"}}>
+          <div style={{position:"absolute",inset:"-100px -200px auto auto",width:650,height:650,borderRadius:"50%",background:"radial-gradient(circle,rgba(93,111,255,.20),transparent 66%)",pointerEvents:"none"}}/>
+          <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.05fr) minmax(340px,.95fr)",gap:"clamp(35px,6vw,80px)",alignItems:"center",position:"relative"}}>
+            <div>
+              <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"8px 12px",border:"1px solid #293244",borderRadius:999,color:"#a7b1c3",fontSize:11,letterSpacing:1.6}}>
+                <span style={{width:7,height:7,borderRadius:"50%",background:"#72e2a2",display:"inline-block",boxShadow:"0 0 14px rgba(114,226,162,.55)"}}/>
+                UNIVERSAL BUSINESS OPERATING SYSTEM
+              </div>
+              <h1 style={{fontSize:"clamp(50px,7.2vw,94px)",lineHeight:.93,letterSpacing:"-.07em",margin:"25px 0 25px"}}>
+                Весь бизнес.<br/><span style={{color:"#909cff"}}>В одной системе.</span>
+              </h1>
+              <p style={{fontSize:"clamp(18px,2vw,22px)",lineHeight:1.55,color:"#a9b2c2",maxWidth:700,margin:0}}>
+                UB OS-RUS объединяет клиентов, продажи, услуги, товары, финансы, сотрудников, процессы и AI в единую операционную систему, которую можно настроить под любой бизнес.
+              </p>
+              <div style={{display:"flex",flexWrap:"wrap",gap:12,marginTop:32}}>
+                <Link href="/login?mode=signup" style={{background:"#fff",color:"#080a0e",textDecoration:"none",padding:"15px 22px",borderRadius:13,fontWeight:800}}>Создать Business OS →</Link>
+                <Link href="/login" style={{border:"1px solid #394255",color:"#e2e6ed",textDecoration:"none",padding:"15px 22px",borderRadius:13}}>Войти</Link>
+              </div>
+              <div style={{display:"flex",gap:20,flexWrap:"wrap",marginTop:24,color:"#68758a",fontSize:12}}>
+                <span>✓ Модульная архитектура</span><span>✓ Свои AI-модели</span><span>✓ API-first</span>
+              </div>
             </div>
-            <h1 style={{fontSize:"clamp(48px,8.5vw,104px)",lineHeight:.94,letterSpacing:"-.065em",margin:"28px 0 28px",maxWidth:980}}>
-              Операционная система<br/><span style={{color:"#8e9cff"}}>для любого бизнеса.</span>
-            </h1>
-            <p style={{fontSize:"clamp(18px,2.2vw,23px)",lineHeight:1.55,color:"#aab3c3",maxWidth:780,margin:0}}>
-              Не набор разрозненных сервисов. Единая платформа, в которой бизнес создаёт свои структуры, процессы, автоматизации и AI-инструменты.
-            </p>
-            <div style={{display:"flex",flexWrap:"wrap",gap:12,marginTop:34}}>
-              <Link href="/login?mode=signup" style={{background:"#fff",color:"#080a0e",textDecoration:"none",padding:"15px 22px",borderRadius:13,fontWeight:800}}>Создать свой Business OS →</Link>
-              <Link href="/login" style={{border:"1px solid #333b4c",color:"#e2e6ed",textDecoration:"none",padding:"15px 22px",borderRadius:13}}>Войти в систему</Link>
+            <div style={{border:"1px solid #293244",borderRadius:24,background:"linear-gradient(145deg,#111722,#080b10)",boxShadow:"0 30px 90px rgba(0,0,0,.42)",overflow:"hidden"}}>
+              <div style={{height:38,padding:"0 15px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #202837",fontSize:11,color:"#78849a"}}>
+                <span>UB OS-RUS / COMMAND CENTER</span><span style={{color:"#78dda4"}}>● SYSTEM ONLINE</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"105px 1fr"}}>
+                <div style={{padding:"15px 10px",borderRight:"1px solid #202837",minHeight:330}}>
+                  {["Overview","CRM","Sales","Projects","Finance","AI Core","Builder"].map((x,i)=><div key={x} style={{padding:"9px 8px",marginBottom:2,borderRadius:7,background:i===5?"#1b2231":"transparent",color:i===5?"#d9ddff":"#68758a",fontSize:10}}>{x}</div>)}
+                </div>
+                <div style={{padding:17}}>
+                  <div style={{fontSize:10,color:"#68758a",letterSpacing:1.2}}>BUSINESS OVERVIEW</div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:12}}>
+                    {[["1 284","Клиента"],["326","Сделки"],["94%","Автоматизация"]].map(([v,l])=><div key={l} style={{padding:11,border:"1px solid #252d3c",borderRadius:10,background:"#0b0f16"}}><strong style={{display:"block",fontSize:18,color:"#eef1f7"}}>{v}</strong><span style={{fontSize:9,color:"#68758a"}}>{l}</span></div>)}
+                  </div>
+                  <div style={{marginTop:12,padding:13,border:"1px solid #29334a",borderRadius:11,background:"#0a0e15"}}>
+                    <div style={{fontSize:9,color:"#8e9cff",letterSpacing:1}}>AI CORE</div>
+                    <div style={{marginTop:9,fontSize:12,color:"#d9ddff"}}>«Покажи просроченные сделки и создай задачу ответственным»</div>
+                    <div style={{marginTop:10,height:5,borderRadius:5,background:"linear-gradient(90deg,#7d8cff 72%,#202938 72%)"}}/>
+                    <div style={{marginTop:8,fontSize:9,color:"#6f7c90"}}>MODEL → AGENT → WORKFLOW → ACTION</div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
+                    <div style={{padding:12,border:"1px solid #222a37",borderRadius:10}}><div style={{fontSize:9,color:"#68758a"}}>WORKFLOWS</div><div style={{marginTop:5,color:"#8fe1b0",fontSize:13}}>18 active</div></div>
+                    <div style={{padding:12,border:"1px solid #222a37",borderRadius:10}}><div style={{fontSize:9,color:"#68758a"}}>AI MODELS</div><div style={{marginTop:5,color:"#d9ddff",fontSize:13}}>7 connected</div></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
