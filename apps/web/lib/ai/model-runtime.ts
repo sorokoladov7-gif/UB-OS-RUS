@@ -68,10 +68,3 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   const text = json?.choices?.[0]?.message?.content ?? "";
   return { text, provider:model.provider, model:model.model };
 }
-
-export async function getAiModelForApiKey(modelId: string, rawKey: string): Promise<AiModelRuntime | null> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.rpc("get_ai_model_runtime_for_api_key", { p_raw_key: rawKey, p_model_id: modelId });
-  if (error || !data?.[0]) return null;
-  return data[0] as AiModelRuntime;
-}
