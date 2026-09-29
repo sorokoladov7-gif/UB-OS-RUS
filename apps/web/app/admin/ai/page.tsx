@@ -15,7 +15,7 @@ export default function Page(){
  const [form,setForm]=useState<any>({name:"",provider:"openrouter",model:"",baseUrl:"",apiKey:"",role:"general",priority:100,enabled:true,isDefault:false,capabilities:["text"]});
  const [editing,setEditing]=useState<string|null>(null); const [busy,setBusy]=useState(false); const [msg,setMsg]=useState("");
  const [settings,setSettings]=useState<any>({enabled:true,provider:"",model:""});
- const [catalog,setCatalog]=useState<{id:string;name:string;description?:string}[]>([]); const [catalogBusy,setCatalogBusy]=useState(false);
+ const [catalog,setCatalog]=useState<{id:string;name:string;description?:string}[]>([]); const [catalogBusy,setCatalogBusy]=useState(false);\n const [testBusy,setTestBusy]=useState<string|null>(null); const [testReport,setTestReport]=useState<any>(null);
  async function load(){const [a,b]=await Promise.all([fetch("/api/admin/ai/models"),fetch("/api/admin/ai")]);const aj=await a.json(),bj=await b.json();if(a.ok)setModels(aj.items||[]);if(b.ok&&bj.item)setSettings(bj.item)}
  useEffect(()=>{load()},[]);
  function reset(){setForm({name:"",provider:"openrouter",model:"",baseUrl:"",apiKey:"",role:"general",priority:100,enabled:true,isDefault:false,capabilities:["text"]});setEditing(null)}
@@ -44,7 +44,7 @@ async function saveModel(){
  }
  function edit(m:Model){setEditing(m.id);setForm({name:m.name,provider:m.provider,model:m.model,baseUrl:m.base_url||"",apiKey:"",role:m.role,priority:m.priority,enabled:m.enabled,isDefault:m.is_default,capabilities:m.capabilities||["text"]})}
  async function remove(id:string){if(!confirm("Удалить модель из платформенного AI Core?"))return;const r=await fetch("/api/admin/ai/models?id="+encodeURIComponent(id),{method:"DELETE"});const j=await r.json();setMsg(r.ok?"Модель удалена":j.error||"Ошибка удаления");if(r.ok)load()}
- async function test(id:string){setMsg("Проверяю соединение…");const r=await fetch("/api/admin/ai/models/test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id})});const j=await r.json();setMsg(r.ok?"✓ "+(j.message||"Модель отвечает"): "✕ "+(j.error||"Модель не отвечает"));load()}
+ async function test(id:string,mode:"quick"|"full"="quick"){setTestBusy(id);setTestReport(null);setMsg(mode==="full"?"Запускаю расширенную проверку возможностей…":"Проверяю соединение…");const r=await fetch("/api/admin/ai/models/test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id,mode})});const j=await r.json();if(mode==="full"&&r.ok){setTestReport({...j,modelId:id});setMsg(`Проверка завершена: ${j.summary?.passed}/${j.summary?.total} тестов пройдено`)}else setMsg(r.ok?"✓ "+(j.message||"Модель отвечает"):`✕ ${j.error||"Модель не отвечает"}`);setTestBusy(null);load()}
  async function saveSettings(){setBusy(true);const r=await fetch("/api/admin/ai",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(settings)});const j=await r.json();setMsg(r.ok?"Глобальные настройки сохранены":j.error||"Ошибка");setBusy(false)}
  return <AdminShell><section>
   <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
@@ -80,14 +80,14 @@ async function saveModel(){
      <div style={{textAlign:"right",fontSize:12,color:"#9ea8ba"}}>{m.enabled?"● ACTIVE":"○ OFF"}<br/>priority {m.priority}<br/>{m.has_api_key?"🔐 key configured":"○ no key"}</div>
     </div>
     <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:13}}>
-     <button onClick={()=>test(m.id)} style={btn}>Проверить</button><button onClick={()=>edit(m)} style={btn}>Изменить</button><button onClick={()=>remove(m.id)} style={{...btn,borderColor:"#6b3840"}}>Удалить</button>
+     <button disabled={testBusy===m.id} onClick={()=>test(m.id,"quick")} style={btn}>{testBusy===m.id?"Проверка…":"Проверить связь"}</button><button disabled={testBusy===m.id} onClick={()=>test(m.id,"full")} style={{...btn,borderColor:"#5967b8"}}>🧪 Полный тест возможностей</button><button onClick={()=>edit(m)} style={btn}>Изменить</button><button onClick={()=>remove(m.id)} style={{...btn,borderColor:"#6b3840"}}>Удалить</button>
     </div>
     {m.last_test_at&&<div style={{marginTop:10,fontSize:12,color:m.last_test_status==="ok"?"#76e4c1":"#ff9b9b"}}>{m.last_test_status==="ok"?"✓ Последняя проверка успешна":"✕ Последняя проверка завершилась ошибкой"} · {new Date(m.last_test_at).toLocaleString()} {m.last_test_message&&"· "+m.last_test_message}</div>}
    </article>)}
    {!models.length&&<div style={{padding:24,border:"1px dashed #39445a",borderRadius:15,color:"#9ea8ba"}}>Платформенные модели пока не добавлены. Добавьте первую модель выше.</div>}
   </div>
 
-  <div style={{...box,marginTop:20}}>
+  {testReport&&<div style={{...box,marginTop:18,maxWidth:1100}}><div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}><div><div style={{fontSize:12,letterSpacing:1,color:"#7e8cff"}}>AI CAPABILITY TEST</div><h3 style={{margin:"5px 0"}}>Результаты расширенной проверки</h3></div><div style={{fontSize:14}}><b>{testReport.summary?.passed}/{testReport.summary?.total}</b> пройдено · среднее <b>{testReport.summary?.averageLatencyMs} мс</b></div></div><div style={{display:"grid",gap:10,marginTop:14}}>{(testReport.results||[]).map((r:any)=><div key={r.id} style={{padding:12,border:"1px solid #293348",borderRadius:11,background:"#0d1119"}}><div style={{display:"flex",justifyContent:"space-between",gap:8}}><b>{r.passed?"✓":"✕"} {r.name}</b><span style={{fontSize:12,color:"#9ea8ba"}}>{r.latencyMs} мс</span></div>{r.error?<div style={{marginTop:7,color:"#ff9b9b"}}>{r.error}</div>:<pre style={{whiteSpace:"pre-wrap",wordBreak:"break-word",margin:"8px 0 0",fontSize:12,color:"#cbd4e4"}}>{r.response}</pre>}</div>)}</div></div>}\n\n  <div style={{...box,marginTop:20}}>
    <h3 style={{marginTop:0}}>Глобальный AI-контур</h3><p style={{color:"#9ea8ba"}}>Эти настройки определяют общий переключатель AI Core и совместимость со старым глобальным провайдером.</p>
    <label><input type="checkbox" checked={!!settings.enabled} onChange={e=>setSettings({...settings,enabled:e.target.checked})}/> AI Core включён</label>
    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:12}}><input value={settings.provider||""} onChange={e=>setSettings({...settings,provider:e.target.value})} placeholder="legacy provider" style={input}/><input value={settings.model||""} onChange={e=>setSettings({...settings,model:e.target.value})} placeholder="legacy model" style={input}/></div>
