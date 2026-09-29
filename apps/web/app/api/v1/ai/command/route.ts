@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { NextResponse } from "next/server";
 import { authenticateApiRequest, hasApiScope } from "@/lib/api-gateway";
-import { getAiModelForApiKey, runAiModel } from "@/lib/ai/model-runtime";
+import { runAiModel } from "@/lib/ai/model-runtime";
+import { getAiModelForApiKey } from "@/lib/ai/api-key-model-runtime";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
