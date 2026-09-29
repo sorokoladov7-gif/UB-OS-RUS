@@ -7,7 +7,7 @@ const nav:Array<[string,string,string]>=[
 ["◈","Обзор","/admin"],["⌘","Организации","/admin/organizations"],["◉","Пользователи","/admin/users"],
 ["₽","Тарифы","/admin/plans"],["↻","Подписки","/admin/subscriptions"],["◫","Платежи","/admin/payments"],
 ["◇","Интеграции","/admin/integrations"],["⌁","API","/admin/api"],["✦","AI Core","/admin/ai"],
-["◎","RBAC","/admin/roles"],["≡","Аудит","/admin/audit"]];
+["◎","RBAC","/admin/roles"],["≡","Аудит","/admin/audit"],["?","Инструкция","/admin/help"]];
 
 export function AdminShell({children}:{children:ReactNode}){
  const pathname=usePathname();
