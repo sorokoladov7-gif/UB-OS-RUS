@@ -22,7 +22,7 @@ export async function getOwnAiModel(id: string): Promise<AiModelRuntime | null> 
 }
 
 function normalizeBaseUrl(value: string | null | undefined, provider: string): string {
-  if (value) return value.replace(/\\/$/, "");
+  if (value) return value.replace(/\/$/, "");
   if (provider === "openrouter") return "https://openrouter.ai/api/v1";
   if (provider === "groq") return "https://api.groq.com/openai/v1";
   if (provider === "openai") return "https://api.openai.com/v1";
