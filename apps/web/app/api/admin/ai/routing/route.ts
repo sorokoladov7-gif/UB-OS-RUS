@@ -1,0 +1,5 @@
+import {NextResponse} from "next/server";
+import {createSupabaseServerClient} from "@/lib/supabase/server";
+async function auth(){const s=await createSupabaseServerClient();const {data:c}=await s.auth.getClaims();return {s,uid:c?.claims?.sub};}
+export async function GET(){const {s,uid}=await auth();if(!uid)return NextResponse.json({error:"Не авторизован"},{status:401});const {data,error}=await s.rpc("admin_list_ai_routing");if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json({items:data||[]});}
+export async function PUT(req:Request){const {s,uid}=await auth();if(!uid)return NextResponse.json({error:"Не авторизован"},{status:401});const b=await req.json().catch(()=>({}));if(!b.routeKey)return NextResponse.json({error:"routeKey обязателен"},{status:400});const {data,error}=await s.rpc("admin_update_ai_routing",{p_route_key:String(b.routeKey),p_primary_model_id:b.primaryModelId||null,p_fallback_model_ids:Array.isArray(b.fallbackModelIds)?b.fallbackModelIds:[],p_enabled:b.enabled!==false});if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json(data);}
