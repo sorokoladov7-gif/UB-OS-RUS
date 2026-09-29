@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export type AiModelRuntime = {
+export function isFreeOpenRouterModel(model: string): boolean {\n  const value = String(model || "").trim();\n  return value === "openrouter/free" || /:free$/i.test(value);\n}\n\nexport type AiModelRuntime = {
   id: string;
   name: string;
   provider: string;
@@ -92,7 +92,7 @@ export async function getFallbackAiModels(excludeId: string): Promise<AiModelRun
   const { data } = await supabase.rpc("list_ai_model_connections");
   const rows = Array.isArray(data) ? data : [];
   const candidates = rows
-    .filter((row:any) => row?.id && row.id !== excludeId && row.enabled !== false)
+    .filter((row:any) => row?.id && row.id !== excludeId && row.enabled !== false)\n    .filter((row:any) => String(row?.provider || "").toLowerCase() !== "openrouter" || isFreeOpenRouterModel(String(row?.model || "")))
     .sort((a:any,b:any) => {
       const ad = a.is_default ? 1 : 0;
       const bd = b.is_default ? 1 : 0;
@@ -102,7 +102,7 @@ export async function getFallbackAiModels(excludeId: string): Promise<AiModelRun
   const result: AiModelRuntime[] = [];
   for (const row of candidates.slice(0, 5)) {
     const { data: runtime } = await supabase.rpc("get_ai_model_runtime", { p_id: String(row.id) });
-    if (runtime?.[0]?.enabled !== false && runtime?.[0]) result.push(runtime[0] as AiModelRuntime);
+    if (runtime?.[0]?.enabled !== false && runtime?.[0]) {\n      const runtimeModel = runtime[0] as AiModelRuntime;\n      if (String(runtimeModel.provider || "").toLowerCase() !== "openrouter" || isFreeOpenRouterModel(runtimeModel.model)) {\n        result.push(runtimeModel);\n      }\n    }
   }
   return result;
 }
