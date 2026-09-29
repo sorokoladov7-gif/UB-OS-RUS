@@ -116,7 +116,7 @@ export async function POST(req:Request){
    }catch(e){
      const msg=e instanceof Error?e.message:"PROVIDER_ERROR";
      await s.rpc("admin_record_ai_model_test",{p_id:b.id,p_status:"error",p_message:msg});
-     return NextResponse.json({ok:false,error:msg},{status:502});
+     return NextResponse.json({ok:false,error:msg,diagnosticVersion:"AI-TEST-V3"},{status:502,headers:{"cache-control":"no-store, no-cache, must-revalidate"}});
    }
  }
  const results:TestResult[]=[];
@@ -135,5 +135,5 @@ export async function POST(req:Request){
  const avg=Math.round(results.reduce((a,x)=>a+x.latencyMs,0)/Math.max(1,results.length));
  const status=passed===results.length?"ok":"warning";
  await s.rpc("admin_record_ai_model_test",{p_id:b.id,p_status:status,p_message:`Расширенный тест: ${passed}/${results.length}; среднее ${avg} мс`});
- return NextResponse.json({ok:true,mode:"full",summary:{passed,total:results.length,averageLatencyMs:avg},results});
+ return NextResponse.json({ok:true,mode:"full",diagnosticVersion:"AI-TEST-V3",summary:{passed,total:results.length,averageLatencyMs:avg},results},{headers:{"cache-control":"no-store, no-cache, must-revalidate"}});
 }
