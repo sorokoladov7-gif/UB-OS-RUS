@@ -6,7 +6,7 @@ import {usePathname} from "next/navigation";
 const nav:Array<[string,string,string]>=[
 ["◈","Обзор","/admin"],["⌘","Организации","/admin/organizations"],["◉","Пользователи","/admin/users"],
 ["₽","Тарифы","/admin/plans"],["↻","Подписки","/admin/subscriptions"],["◫","Платежи","/admin/payments"],
-["◇","Интеграции","/admin/integrations"],["⌁","API","/admin/api"],["✦","AI Core","/admin/ai"],
+["◇","Интеграции","/admin/integrations"],["⌁","API","/admin/api"],["✦","AI Core","/admin/ai"],["⇄","AI Router","/admin/ai/routing"],
 ["◎","RBAC","/admin/roles"],["≡","Аудит","/admin/audit"],["?","Инструкция","/admin/help"]];
 
 function helpId(pathname:string){const map:[string,string][]=[["/admin/organizations","organizations"],["/admin/users","users"],["/admin/plans","plans"],["/admin/subscriptions","subscriptions"],["/admin/payments","payments"],["/admin/integrations","integrations"],["/admin/api","api"],["/admin/ai","ai"],["/admin/roles","rbac"],["/admin/audit","audit"],["/admin/help","overview"]];return map.find(([p])=>pathname.startsWith(p))?.[1]||"overview"}
