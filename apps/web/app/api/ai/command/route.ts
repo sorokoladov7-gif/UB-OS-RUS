@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getOwnAiModel, runAiModel } from "@/lib/ai/model-runtime";
+import { getOwnAiModel, getDefaultAiModel, runAiModel } from "@/lib/ai/model-runtime";
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
@@ -9,9 +9,9 @@ export async function POST(request: Request) {
   const uid = claims?.claims?.sub;
   if (!uid) return NextResponse.json({error:"Не авторизован"},{status:401});
   const body=await request.json().catch(()=>null);
-  if(!body?.modelId || !body?.message) return NextResponse.json({error:"modelId и message обязательны"},{status:400});
+  if(!body?.message) return NextResponse.json({error:"message обязателен"},{status:400});
 
-  const model=await getOwnAiModel(String(body.modelId));
+  const model=body?.modelId ? await getOwnAiModel(String(body.modelId)) : await getDefaultAiModel();
   if(!model) return NextResponse.json({error:"AI_MODEL_NOT_FOUND"},{status:404});
 
   const started=Date.now();
