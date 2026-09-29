@@ -2,16 +2,16 @@
 import {useEffect,useState} from "react";
 import {AdminShell} from "../_components";
 
-type Model={id:string;name:string;provider:string;model:string;base_url:string|null;role:string;priority:number;enabled:boolean;is_default:boolean;has_api_key:boolean;last_test_at:string|null;last_test_status:string|null;last_test_message:string|null};
+type Model={id:string;name:string;provider:string;model:string;base_url:string|null;role:string;priority:number;enabled:boolean;is_default:boolean;has_api_key:boolean;capabilities:string[];last_test_at:string|null;last_test_status:string|null;last_test_message:string|null};
 const providers=[["openai","OpenAI / OpenAI-compatible"],["openrouter","OpenRouter"],["groq","Groq"],["gemini","Google Gemini"],["anthropic","Anthropic / compatible"],["custom","Custom endpoint"],["ollama","Ollama / remote endpoint"]];
-const roles=[["general","Общая"],["primary","Основная"],["fallback","Резервная"],["analytics","Аналитика"],["agent","AI-агенты"],["embedding","Embeddings"],["vision","Vision"]];
+const roles=[["general","Общая"],["primary","Основная"],["fallback","Резервная"],["analytics","Аналитика"],["agent","AI-агенты"],["embedding","Embeddings"],["vision","Vision"]];\nconst capabilities=[["text","Текст"],["vision","Vision"],["tools","Tool calling"],["agents","Agents"],["embeddings","Embeddings"],["json","Structured JSON"]];
 
 const input={display:"block",width:"100%",boxSizing:"border-box" as const,padding:"10px",marginTop:6,borderRadius:9,border:"1px solid #3c465b",background:"#0b0d12",color:"#fff"};
 const btn={padding:"9px 13px",borderRadius:10,border:"1px solid #3c465b",background:"#1b2332",color:"#fff",cursor:"pointer"};
 
 export default function Page(){
  const [models,setModels]=useState<Model[]>([]);
- const [form,setForm]=useState<any>({name:"",provider:"openrouter",model:"",baseUrl:"",apiKey:"",role:"general",priority:100,enabled:true,isDefault:false});
+ const [form,setForm]=useState<any>({name:"",provider:"openrouter",model:"",baseUrl:"",apiKey:"",role:"general",priority:100,enabled:true,isDefault:false,capabilities:["text"]});
  const [editing,setEditing]=useState<string|null>(null); const [busy,setBusy]=useState(false); const [msg,setMsg]=useState("");
  const [settings,setSettings]=useState<any>({enabled:true,provider:"",model:""});
  async function load(){const [a,b]=await Promise.all([fetch("/api/admin/ai/models"),fetch("/api/admin/ai")]);const aj=await a.json(),bj=await b.json();if(a.ok)setModels(aj.items||[]);if(b.ok&&bj.item)setSettings(bj.item)}
@@ -23,7 +23,7 @@ export default function Page(){
   const r=await fetch("/api/admin/ai/models",{method:editing?"PUT":"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
   const j=await r.json();if(r.ok){setMsg(editing?"Модель обновлена":"Модель добавлена");reset();await load()}else setMsg(j.error||"Ошибка сохранения");setBusy(false)
  }
- function edit(m:Model){setEditing(m.id);setForm({name:m.name,provider:m.provider,model:m.model,baseUrl:m.base_url||"",apiKey:"",role:m.role,priority:m.priority,enabled:m.enabled,isDefault:m.is_default})}
+ function edit(m:Model){setEditing(m.id);setForm({name:m.name,provider:m.provider,model:m.model,baseUrl:m.base_url||"",apiKey:"",role:m.role,priority:m.priority,enabled:m.enabled,isDefault:m.is_default,capabilities:m.capabilities||["text"]})}
  async function remove(id:string){if(!confirm("Удалить модель из платформенного AI Core?"))return;const r=await fetch("/api/admin/ai/models?id="+encodeURIComponent(id),{method:"DELETE"});const j=await r.json();setMsg(r.ok?"Модель удалена":j.error||"Ошибка удаления");if(r.ok)load()}
  async function test(id:string){setMsg("Проверяю соединение…");const r=await fetch("/api/admin/ai/models/test",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id})});const j=await r.json();setMsg(r.ok?"✓ "+(j.message||"Модель отвечает"): "✕ "+(j.error||"Модель не отвечает"));load()}
  async function saveSettings(){setBusy(true);const r=await fetch("/api/admin/ai",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(settings)});const j=await r.json();setMsg(r.ok?"Глобальные настройки сохранены":j.error||"Ошибка");setBusy(false)}
@@ -42,7 +42,7 @@ export default function Page(){
     <label>Роль<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} style={input}>{roles.map(([v,n])=><option key={v} value={v}>{n}</option>)}</select></label>
     <label>Приоритет<input type="number" value={form.priority} onChange={e=>setForm({...form,priority:Number(e.target.value)})} style={input}/></label>
     <label>Base URL<input value={form.baseUrl} onChange={e=>setForm({...form,baseUrl:e.target.value})} placeholder="только для custom/совместимых API" style={input}/></label>
-    <label style={{gridColumn:"1/-1"}}>API key <input type="password" value={form.apiKey} onChange={e=>setForm({...form,apiKey:e.target.value})} placeholder={editing?"Оставьте пустым, чтобы сохранить существующий ключ":"Секрет хранится только на сервере"} style={input}/></label>
+    <label style={{gridColumn:"1/-1"}}>Возможности<div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:8}}>{capabilities.map(([v,n])=><label key={v} style={{padding:"7px 10px",border:"1px solid #303b51",borderRadius:9,background:"#0b0d12",fontSize:12}}><input type="checkbox" checked={form.capabilities?.includes(v)} onChange={e=>setForm({...form,capabilities:e.target.checked?[...(form.capabilities||[]),v]:(form.capabilities||[]).filter((x:string)=>x!==v)})}/> {n}</label>)}</div></label>\n    <label style={{gridColumn:"1/-1"}}>API key <input type="password" value={form.apiKey} onChange={e=>setForm({...form,apiKey:e.target.value})} placeholder={editing?"Оставьте пустым, чтобы сохранить существующий ключ":"Секрет хранится только на сервере"} style={input}/></label>
    </div>
    <div style={{display:"flex",gap:18,flexWrap:"wrap",marginTop:13}}>
     <label><input type="checkbox" checked={!!form.enabled} onChange={e=>setForm({...form,enabled:e.target.checked})}/> Включена</label>
