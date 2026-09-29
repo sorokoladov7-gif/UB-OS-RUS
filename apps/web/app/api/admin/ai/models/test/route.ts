@@ -42,7 +42,7 @@ class ProviderError extends Error{
  provider:string;
  body:string;
  constructor(provider:string,status:number,body:string){
-  super(\`Провайдер ${provider} вернул HTTP ${status}: ${body}\`);
+  super(`Провайдер ${provider} вернул HTTP ${status}: ${body}`);
   this.name="ProviderError"; this.status=status; this.provider=provider; this.body=body;
  }
 }
