@@ -129,7 +129,10 @@ export async function POST(req:Request){
      const msg=e instanceof Error?e.message:"PROVIDER_ERROR";
      const latency=Date.now()-started;
      results.push({id:test.id,name:test.name,passed:false,latencyMs:latency,response:"",error:msg});
-     if(msg.includes("HTTP 429")) break;
+     if(msg.includes("HTTP 429")){
+       for(const rest of TESTS.slice(results.length)) results.push({id:rest.id,name:rest.name,passed:false,latencyMs:0,response:"",error:"Пропущено: OpenRouter временно ограничил запросы (HTTP 429)."});
+       break;
+     }
    }
  }
  const passed=results.filter(x=>x.passed).length;
