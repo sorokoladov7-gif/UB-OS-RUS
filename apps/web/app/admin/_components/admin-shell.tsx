@@ -9,6 +9,8 @@ const nav:Array<[string,string,string]>=[
 ["◇","Интеграции","/admin/integrations"],["⌁","API","/admin/api"],["✦","AI Core","/admin/ai"],
 ["◎","RBAC","/admin/roles"],["≡","Аудит","/admin/audit"],["?","Инструкция","/admin/help"]];
 
+function helpId(pathname:string){const map:[string,string][]=[["/admin/organizations","organizations"],["/admin/users","users"],["/admin/plans","plans"],["/admin/subscriptions","subscriptions"],["/admin/payments","payments"],["/admin/integrations","integrations"],["/admin/api","api"],["/admin/ai","ai"],["/admin/roles","rbac"],["/admin/audit","audit"],["/admin/help","overview"]];return map.find(([p])=>pathname.startsWith(p))?.[1]||"overview"}
+
 export function AdminShell({children}:{children:ReactNode}){
  const pathname=usePathname();
  return <main style={{minHeight:"100vh",background:"radial-gradient(circle at 80% -10%,rgba(76,102,255,.22),transparent 34%),radial-gradient(circle at 10% 20%,rgba(0,220,190,.09),transparent 28%),#070910",color:"#f7f8fa",fontFamily:"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"}}>
@@ -28,6 +30,9 @@ export function AdminShell({children}:{children:ReactNode}){
    <nav style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(125px,1fr))",gap:7,margin:"14px 0 26px"}}>
     {nav.map(([icon,label,href])=>{const active=pathname===href;return <Link key={href} href={href} style={{padding:"10px 11px",borderRadius:12,border:"1px solid "+(active?"rgba(110,128,255,.55)":"rgba(126,145,190,.15)"),background:active?"linear-gradient(135deg,rgba(76,102,255,.25),rgba(76,102,255,.08))":"rgba(16,21,34,.8)",color:active?"#fff":"#9da8bd",textDecoration:"none",fontSize:12,display:"flex",alignItems:"center",gap:8,boxShadow:active?"0 0 24px rgba(76,102,255,.12)":"none"}}><span style={{fontSize:16,color:active?"#9ca9ff":"#65718a"}}>{icon}</span>{label}</Link>})}
    </nav>
+   <div style={{position:"fixed",right:18,bottom:18,zIndex:50}}>
+    <Link href={"/admin/help#"+helpId(pathname)} aria-label="Инструкция по текущему разделу" title="Инструкция по текущему разделу" style={{width:48,height:48,borderRadius:"50%",display:"grid",placeItems:"center",textDecoration:"none",fontWeight:800,fontSize:18,color:"#eaf0ff",background:"linear-gradient(135deg,#4c66ff,#26367d)",border:"1px solid rgba(150,165,255,.55)",boxShadow:"0 10px 35px rgba(0,0,0,.4),0 0 28px rgba(76,102,255,.25)"}}>?</Link>
+   </div>
    {children}
   </div>
  </main>
