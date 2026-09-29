@@ -35,5 +35,5 @@ export async function authenticateApiRequest(request: Request): Promise<ApiPrinc
 }
 
 export function hasApiScope(principal: ApiPrincipal, required: string): boolean {
-  return principal.scopes.includes(required) || principal.scopes.includes("platform.*") || principal.scopes.includes("platform.read");
+  return principal.scopes.includes(required) || principal.scopes.includes("platform.*");
 }
