@@ -10,7 +10,8 @@ export async function POST(request: Request) {
   if(!principal) return NextResponse.json({error:"INVALID_API_KEY"},{status:401});
   if(!hasApiScope(principal,"ai.invoke")) return NextResponse.json({error:"INSUFFICIENT_SCOPE",required:"ai.invoke"},{status:403});
   const body=await request.json().catch(()=>null);
-  if(!body?.modelId||!body?.message) return NextResponse.json({error:"modelId и message обязательны"},{status:400});
+  if(!body?.message) return NextResponse.json({error:"message обязателен"},{status:400});
+  if(!body?.modelId) return NextResponse.json({error:"modelId обязателен для API вызова"},{status:400});
   const model=await getAiModelForApiKey(String(body.modelId),principal.rawKey);
   if(!model) return NextResponse.json({error:"AI_MODEL_NOT_FOUND"},{status:404});
   try {
