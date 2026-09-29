@@ -165,6 +165,28 @@ export default async function HomePage() {
         </section>
 
         <section style={{marginBottom:110}}>
+          <div style={{maxWidth:780}}>
+            <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>AI MODEL ECOSYSTEM</div>
+            <h2 style={{fontSize:"clamp(34px,5vw,56px)",letterSpacing:"-.05em",margin:"12px 0"}}>AI Core не привязан<br/>к одной модели.</h2>
+            <p style={{color:"#929bad",fontSize:18,lineHeight:1.6}}>Администратор платформы управляет системными моделями. Пользователь может добавить свои модели и endpoints. Бизнес-логика остаётся независимой от конкретного AI-провайдера.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginTop:28}}>
+            {[
+              ["PLATFORM AI","Модели платформы","Централизованное управление, роли, резервные маршруты и контроль доступности."],
+              ["YOUR AI","Ваши модели","Собственные API keys, OpenAI-compatible endpoints, Gemini, Groq, OpenRouter и удалённые модели."],
+              ["AI API","Ваши приложения","Безопасный API позволяет подключать внешние системы к разрешённым AI-возможностям."],
+            ].map(([tag,title,desc])=><article key={tag} style={{padding:23,border:"1px solid #242d3c",borderRadius:19,background:"#0b0f16"}}>
+              <div style={{fontSize:10,color:"#8e9cff",letterSpacing:1.5}}>{tag}</div>
+              <h3 style={{margin:"14px 0 9px",fontSize:21}}>{title}</h3>
+              <p style={{margin:0,color:"#8d98aa",lineHeight:1.55,fontSize:14}}>{desc}</p>
+            </article>)}
+          </div>
+          <div style={{marginTop:14,padding:"18px 20px",border:"1px solid #293347",borderRadius:15,background:"#090d13",fontFamily:"monospace",fontSize:12,overflowX:"auto",whiteSpace:"nowrap"}}>
+            <span style={{color:"#78859a"}}>BUSINESS</span><span style={{color:"#4f5b70"}}> → </span><span style={{color:"#d9ddff"}}>AI CORE</span><span style={{color:"#4f5b70"}}> → </span><span style={{color:"#8fe1b0"}}>ROUTER</span><span style={{color:"#4f5b70"}}> → </span><span style={{color:"#d9ddff"}}>MODEL</span><span style={{color:"#4f5b70"}}> → </span><span style={{color:"#8fe1b0"}}>ACTION</span>
+          </div>
+        </section>
+
+        <section style={{marginBottom:110}}>
           <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>AI INFRASTRUCTURE</div>
           <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:14,marginTop:14}}>
             {[
