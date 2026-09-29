@@ -41,7 +41,7 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
     const contents = [{ role: "user", parts: [{ text: system ? system + "\\n\\n" + message : message }] }];
     const response = await fetch(url, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({contents}), cache:"no-store" });
     const json = await response.json().catch(()=>({}));
-    if (!response.ok) throw new Error(String(json?.error?.message || "AI_PROVIDER_ERROR"));
+    if (!response.ok) throw new Error(`AI_PROVIDER_HTTP_${response.status}: ${String(json?.error?.message || "AI_PROVIDER_ERROR")}`);
     const text = json?.candidates?.[0]?.content?.parts?.map((p:{text?:string})=>p.text||"").join("") || "";
     return { text, provider:model.provider, model:model.model };
   }
@@ -63,7 +63,7 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
     cache:"no-store",
   });
   const json = await response.json().catch(()=>({}));
-  if (!response.ok) throw new Error(String(json?.error?.message || json?.message || "AI_PROVIDER_ERROR"));
+  if (!response.ok) throw new Error(`AI_PROVIDER_HTTP_${response.status}: ${String(json?.error?.message || json?.message || "AI_PROVIDER_ERROR")}`);
   const text = json?.choices?.[0]?.message?.content ?? "";
   return { text, provider:model.provider, model:model.model };
 }
