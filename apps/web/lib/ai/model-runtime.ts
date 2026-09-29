@@ -38,7 +38,9 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   if (provider === "gemini" || provider === "google") {
     if (!model.api_key) throw new Error("AI_API_KEY_REQUIRED");
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model.model)}:generateContent?key=${encodeURIComponent(model.api_key)}`;
-    const contents = [{ role: "user", parts: [{ text: system ? system + "\\n\\n" + message : message }] }];
+    const contents = [{ role: "user", parts: [{ text: system ? system + "\
+\
+" + message : message }] }];
     const response = await fetch(url, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({contents}), cache:"no-store" });
     const json = await response.json().catch(()=>({}));
     if (!response.ok) throw new Error(String(json?.error?.message || "AI_PROVIDER_ERROR"));
@@ -66,4 +68,10 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   const text = json?.choices?.[0]?.message?.content ?? "";
   return { text, provider:model.provider, model:model.model };
 }
-\nexport async function getAiModelForApiKey(modelId: string, rawKey: string): Promise<AiModelRuntime | null> {\n  const supabase = await createSupabaseServerClient();\n  const { data, error } = await supabase.rpc("get_ai_model_runtime_for_api_key", { p_raw_key: rawKey, p_model_id: modelId });\n  if (error || !data?.[0]) return null;\n  return data[0] as AiModelRuntime;\n}\n
+
+export async function getAiModelForApiKey(modelId: string, rawKey: string): Promise<AiModelRuntime | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("get_ai_model_runtime_for_api_key", { p_raw_key: rawKey, p_model_id: modelId });
+  if (error || !data?.[0]) return null;
+  return data[0] as AiModelRuntime;
+}
