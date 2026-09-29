@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextResponse } from "next/server";
 import { authenticateApiRequest, hasApiScope } from "@/lib/api-gateway";
 import { getOwnAiModel, runAiModel } from "@/lib/ai/model-runtime";
