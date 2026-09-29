@@ -37,6 +37,23 @@ function baseUrl(v:string|null|undefined,p:string){
 
 type TestResult={id:string;name:string;passed:boolean;latencyMs:number;response:string;error?:string};
 
+const PROVIDER_TIMEOUT_MS=12000;
+
+async function fetchWithTimeout(input:RequestInfo|URL,init:RequestInit={}){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),PROVIDER_TIMEOUT_MS);
+ try{
+  return await fetch(input,{...init,signal:controller.signal});
+ }catch(e){
+  if(e instanceof Error&&e.name==="AbortError"){
+   throw new Error(`Провайдер не ответил за ${PROVIDER_TIMEOUT_MS/1000} секунд (TIMEOUT)`);
+  }
+  throw e;
+ }finally{
+  clearTimeout(timer);
+ }
+}
+
 class ProviderError extends Error{
  status:number;
  provider:string;
@@ -65,7 +82,7 @@ async function callModel(m:any,prompt:string){
    if(!m.api_key)throw new Error("API_KEY_NOT_CONFIGURED");
    const {model}=normalize(provider,m.model);
    const u=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(m.api_key)}`;
-   const rr=await fetch(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:0.1}}),cache:"no-store"});
+   const rr=await fetchWithTimeout(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:0.1}}),cache:"no-store"});
    if(!rr.ok)throw new ProviderError(provider,rr.status,await readProviderBody(rr));
    const j=await rr.json().catch(()=>({}));
    text=j?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text||"").join("")||"";
@@ -76,7 +93,7 @@ async function callModel(m:any,prompt:string){
    const h:any={"content-type":"application/json"};
    if(m.api_key)h.authorization=`Bearer ${m.api_key}`;
    const {model}=normalize(provider,m.model);
-   const rr=await fetch(base+"/chat/completions",{method:"POST",headers:h,body:JSON.stringify({model,messages:[{role:"user",content:prompt}],temperature:0.1,...(provider==="openrouter"?{provider:{allow_fallbacks:true}}:{})}),cache:"no-store"});
+   const rr=await fetchWithTimeout(base+"/chat/completions",{method:"POST",headers:h,body:JSON.stringify({model,messages:[{role:"user",content:prompt}],temperature:0.1,...(provider==="openrouter"?{provider:{allow_fallbacks:true}}:{})}),cache:"no-store"});
    if(!rr.ok)throw new ProviderError(provider,rr.status,await readProviderBody(rr));
    const j=await rr.json().catch(()=>({}));
    text=j?.choices?.[0]?.message?.content||"";
@@ -129,8 +146,8 @@ export async function POST(req:Request){
      const msg=e instanceof Error?e.message:"PROVIDER_ERROR";
      const latency=Date.now()-started;
      results.push({id:test.id,name:test.name,passed:false,latencyMs:latency,response:"",error:msg});
-     if(msg.includes("HTTP 429")){
-       for(const rest of TESTS.slice(results.length)) results.push({id:rest.id,name:rest.name,passed:false,latencyMs:0,response:"",error:"Пропущено: OpenRouter временно ограничил запросы (HTTP 429)."});
+     if(/HTTP (408|429|5\\d\\d)|TIMEOUT|timeout|upstream|temporar/i.test(msg)){
+       for(const rest of TESTS.slice(results.length)) results.push({id:rest.id,name:rest.name,passed:false,latencyMs:0,response:"",error:`Пропущено после временной ошибки провайдера: ${msg}`});
        break;
      }
    }
