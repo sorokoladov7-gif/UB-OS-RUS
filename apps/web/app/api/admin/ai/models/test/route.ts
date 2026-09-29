@@ -76,7 +76,7 @@ async function callModel(m:any,prompt:string){
    const h:any={"content-type":"application/json"};
    if(m.api_key)h.authorization=`Bearer ${m.api_key}`;
    const {model}=normalize(provider,m.model);
-   const rr=await fetch(base+"/chat/completions",{method:"POST",headers:h,body:JSON.stringify({model,messages:[{role:"user",content:prompt}],temperature:0.1}),cache:"no-store"});
+   const rr=await fetch(base+"/chat/completions",{method:"POST",headers:h,body:JSON.stringify({model,messages:[{role:"user",content:prompt}],temperature:0.1,...(provider==="openrouter"?{provider:{allow_fallbacks:true}}:{})}),cache:"no-store"});
    if(!rr.ok)throw new ProviderError(provider,rr.status,await readProviderBody(rr));
    const j=await rr.json().catch(()=>({}));
    text=j?.choices?.[0]?.message?.content||"";
