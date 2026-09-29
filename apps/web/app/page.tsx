@@ -10,7 +10,7 @@ const modules = [
   ["⌘","Проекты","Этапы, задачи и контроль сроков"],
   ["₽","Финансы","Платежи, документы и показатели"],
   ["◎","Персонал","Сотрудники, роли и доступы"],
-  ["✦","AI Core","Модели, агенты и автоматизация"],
+  ["✦","AI Core","Модели, агенты, инструменты и автоматизация"],
 ];
 
 const steps = [
@@ -70,7 +70,7 @@ export default async function HomePage() {
                 <div style={{padding:17}}>
                   <div style={{fontSize:10,color:"#68758a",letterSpacing:1.2}}>BUSINESS OVERVIEW</div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:12}}>
-                    {[["1 284","Клиента"],["326","Сделки"],["94%","Автоматизация"]].map(([v,l])=><div key={l} style={{padding:11,border:"1px solid #252d3c",borderRadius:10,background:"#0b0f16"}}><strong style={{display:"block",fontSize:18,color:"#eef1f7"}}>{v}</strong><span style={{fontSize:9,color:"#68758a"}}>{l}</span></div>)}
+                    {[["∞","Данные"],["∞","Процессы"],["AI","Управление"]].map(([v,l])=><div key={l} style={{padding:11,border:"1px solid #252d3c",borderRadius:10,background:"#0b0f16"}}><strong style={{display:"block",fontSize:18,color:"#eef1f7"}}>{v}</strong><span style={{fontSize:9,color:"#68758a"}}>{l}</span></div>)}
                   </div>
                   <div style={{marginTop:12,padding:13,border:"1px solid #29334a",borderRadius:11,background:"#0a0e15"}}>
                     <div style={{fontSize:9,color:"#8e9cff",letterSpacing:1}}>AI CORE</div>
@@ -172,7 +172,7 @@ export default async function HomePage() {
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginTop:28}}>
             {[
-              ["PLATFORM AI","Модели платформы","Централизованное управление, роли, резервные маршруты и контроль доступности."],
+              ["PLATFORM AI","Модели платформы","Централизованное управление, роли и контроль доступности."],
               ["YOUR AI","Ваши модели","Собственные API keys, OpenAI-compatible endpoints, Gemini, Groq, OpenRouter и удалённые модели."],
               ["AI API","Ваши приложения","Безопасный API позволяет подключать внешние системы к разрешённым AI-возможностям."],
             ].map(([tag,title,desc])=><article key={tag} style={{padding:23,border:"1px solid #242d3c",borderRadius:19,background:"#0b0f16"}}>
@@ -187,13 +187,13 @@ export default async function HomePage() {
         </section>
 
         <section style={{marginBottom:110}}>
-          <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>AI INFRASTRUCTURE</div>
+          <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>PLATFORM ARCHITECTURE</div>
           <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:14,marginTop:14}}>
             {[
-              ["PLATFORM AI","Администратор платформы подключает и проверяет разные модели, назначает роли и резервные маршруты для AI Core."],
-              ["YOUR AI","Каждый пользователь может подключить собственную модель и использовать свой endpoint или API key, не раскрывая секреты другим пользователям."],
+              ["PLATFORM AI","Платформа может использовать несколько AI-провайдеров и моделей. Администратор управляет доступными системными моделями и их ролями."],
+              ["YOUR AI","Каждый пользователь может подключить собственные модели и endpoints. Секреты изолированы от других пользователей."],
               ["AI ROUTER","AI Core отделяет бизнес-логику от конкретного провайдера: модель можно заменить без перестройки бизнес-процессов."],
-              ["API FIRST","Внешние приложения могут обращаться к AI Core через защищённый API и работать с теми моделями, которые разрешены ключу."],
+              ["API FIRST","Внешние приложения могут обращаться к AI Core через API с отдельными ключами и scopes."],
             ].map(([title,desc])=><article key={title} style={{padding:24,border:"1px solid #202632",borderRadius:18,background:"#0b0e14"}}>
               <div style={{fontFamily:"monospace",fontSize:11,color:"#8e9cff",letterSpacing:1.5}}>{title}</div>
               <p style={{margin:"13px 0 0",color:"#929bad",lineHeight:1.6}}>{desc}</p>
