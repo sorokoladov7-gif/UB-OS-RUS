@@ -2,50 +2,127 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/workspace";
 
+const modules = [
+  ["◈","CRM","Клиенты, лиды и история взаимодействий"],
+  ["↗","Продажи","Сделки, заказы, счета и оплаты"],
+  ["◇","Услуги","Процессы оказания услуг и статусы"],
+  ["▦","Товары","Каталог, остатки и движение"],
+  ["⌘","Проекты","Этапы, задачи и контроль сроков"],
+  ["₽","Финансы","Платежи, документы и показатели"],
+  ["◎","Персонал","Сотрудники, роли и доступы"],
+  ["✦","AI Core","Модели, агенты и автоматизация"],
+];
+
+const steps = [
+  ["01","Создайте бизнес","Выберите отрасль или соберите собственную структуру."],
+  ["02","Настройте процессы","Добавьте сущности, поля, статусы, формы и правила."],
+  ["03","Подключите AI","Используйте встроенные модели или добавьте свои."],
+  ["04","Автоматизируйте","Пусть система выполняет повторяющиеся действия сама."],
+];
+
 export default async function HomePage() {
   const context = await getWorkspaceContext();
-
-  if (context?.activeWorkspace) {
-    redirect("/app");
-  }
+  if (context?.activeWorkspace) redirect("/app");
 
   return (
-    <main style={{ minHeight: "100vh", background: "#0b0d12", color: "#f7f8fa", fontFamily: "system-ui", padding: "clamp(24px, 6vw, 72px)" }}>
-      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
-        <div style={{ display: "inline-flex", padding: "8px 12px", border: "1px solid #2b3140", borderRadius: 999, color: "#aab2c3", fontSize: 13 }}>
-          UNIVERSAL BUSINESS OPERATING SYSTEM
-        </div>
-        <h1 style={{ fontSize: "clamp(42px, 8vw, 78px)", lineHeight: 0.98, margin: "28px 0 20px", letterSpacing: "-0.04em" }}>
-          Один операционный центр для всего бизнеса.
-        </h1>
-        <p style={{ maxWidth: 720, color: "#aab2c3", fontSize: 19, lineHeight: 1.6 }}>
-          UB OS-RUS объединяет клиентов, продажи, услуги, товары, проекты, сотрудников,
-          документы, автоматизацию и AI в единой системе.
-        </p>
+    <main style={{minHeight:"100vh",background:"#07090d",color:"#f5f7fb",fontFamily:"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",overflow:"hidden"}}>
+      <div style={{maxWidth:1240,margin:"0 auto",padding:"0 22px 80px"}}>
+        <header style={{height:82,display:"flex",alignItems:"center",justifyContent:"space-between",gap:18,borderBottom:"1px solid #171b24"}}>
+          <Link href="/" style={{color:"#fff",textDecoration:"none",fontWeight:800,fontSize:20,letterSpacing:"-.03em"}}>
+            UB <span style={{color:"#8b95a9"}}>OS-RUS</span>
+          </Link>
+          <nav style={{display:"flex",alignItems:"center",gap:10}}>
+            <Link href="/login" style={{color:"#c5ccda",textDecoration:"none",padding:"10px 14px"}}>Войти</Link>
+            <Link href="/login?mode=signup" style={{color:"#080a0e",background:"#fff",textDecoration:"none",padding:"11px 16px",borderRadius:11,fontWeight:700}}>Создать систему</Link>
+          </nav>
+        </header>
 
-        {!context ? (
-          <section style={{ marginTop: 42, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
-            <Link href="/login" style={{ textDecoration: "none", color: "inherit", border: "1px solid #3b4355", borderRadius: 20, padding: 24, background: "#121620" }}>
-              <strong style={{ fontSize: 20 }}>Войти в UB OS-RUS</strong>
-              <p style={{ color: "#aab2c3", lineHeight: 1.5 }}>Открыть существующее рабочее пространство.</p>
-            </Link>
-            <Link href="/login?mode=signup" style={{ textDecoration: "none", color: "inherit", border: "1px solid #3b4355", borderRadius: 20, padding: 24, background: "#121620" }}>
-              <strong style={{ fontSize: 20 }}>Создать систему</strong>
-              <p style={{ color: "#aab2c3", lineHeight: 1.5 }}>Зарегистрироваться и создать первую организацию.</p>
-            </Link>
-          </section>
-        ) : (
-          <section style={{ marginTop: 42, padding: 28, border: "1px solid #3b4355", borderRadius: 20, background: "#121620" }}>
-            <h2 style={{ marginTop: 0 }}>Рабочее пространство ещё не создано</h2>
-            <p style={{ color: "#aab2c3" }}>После создания организации здесь появится ваш операционный центр.</p>
-          </section>
-        )}
+        <section style={{padding:"clamp(72px,12vw,138px) 0 92px",position:"relative"}}>
+          <div style={{position:"absolute",width:520,height:520,borderRadius:"50%",background:"radial-gradient(circle,rgba(83,108,255,.18),transparent 68%)",top:-100,right:-160,pointerEvents:"none"}}/>
+          <div style={{maxWidth:900,position:"relative"}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"8px 12px",border:"1px solid #273042",borderRadius:999,color:"#9faabd",fontSize:12,letterSpacing:1.5}}>
+              <span style={{width:7,height:7,borderRadius:"50%",background:"#73e2a3",display:"inline-block"}}/>
+              UNIVERSAL BUSINESS OPERATING SYSTEM
+            </div>
+            <h1 style={{fontSize:"clamp(48px,8.5vw,104px)",lineHeight:.94,letterSpacing:"-.065em",margin:"28px 0 28px",maxWidth:980}}>
+              Операционная система<br/><span style={{color:"#8e9cff"}}>для любого бизнеса.</span>
+            </h1>
+            <p style={{fontSize:"clamp(18px,2.2vw,23px)",lineHeight:1.55,color:"#aab3c3",maxWidth:780,margin:0}}>
+              Не набор разрозненных сервисов. Единая платформа, в которой бизнес создаёт свои структуры, процессы, автоматизации и AI-инструменты.
+            </p>
+            <div style={{display:"flex",flexWrap:"wrap",gap:12,marginTop:34}}>
+              <Link href="/login?mode=signup" style={{background:"#fff",color:"#080a0e",textDecoration:"none",padding:"15px 22px",borderRadius:13,fontWeight:800}}>Создать свой Business OS →</Link>
+              <Link href="/login" style={{border:"1px solid #333b4c",color:"#e2e6ed",textDecoration:"none",padding:"15px 22px",borderRadius:13}}>Войти в систему</Link>
+            </div>
+          </div>
+        </section>
 
-        <div style={{ marginTop: 56, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12 }}>
-          {["CRM", "Продажи", "Услуги", "Склад", "Финансы", "Проекты", "Персонал", "AI"].map((item) => (
-            <div key={item} style={{ padding: 16, border: "1px solid #242a36", borderRadius: 14, color: "#cbd2df" }}>{item}</div>
-          ))}
-        </div>
+        <section style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12,marginBottom:110}}>
+          {[
+            ["01","Единое ядро","Все ключевые процессы бизнеса в одной системе."],
+            ["02","Business Builder","Создавайте собственные сущности, поля, статусы и формы."],
+            ["03","Workflow Engine","Автоматизируйте действия и переходы между этапами."],
+            ["04","AI Core","Подключайте разные модели и превращайте AI в часть процессов."],
+          ].map(([n,t,d])=><article key={n} style={{padding:22,border:"1px solid #202632",borderRadius:18,background:"linear-gradient(145deg,#0d1118,#090b10)"}}>
+            <div style={{fontSize:12,color:"#69758a",letterSpacing:2}}>{n}</div><h3 style={{margin:"18px 0 8px",fontSize:20}}>{t}</h3><p style={{margin:0,color:"#8f99aa",lineHeight:1.5}}>{d}</p>
+          </article>)}
+        </section>
+
+        <section style={{marginBottom:110}}>
+          <div style={{maxWidth:760,marginBottom:30}}>
+            <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>BUSINESS ENGINE</div>
+            <h2 style={{fontSize:"clamp(34px,5vw,58px)",letterSpacing:"-.045em",margin:"12px 0"}}>Один фундамент.<br/>Любая структура бизнеса.</h2>
+            <p style={{color:"#929bad",fontSize:18,lineHeight:1.6}}>Ресторан, производство, строительство, магазин, сервисная компания или совершенно новый тип бизнеса — структура не зашита намертво.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(230px,1fr))",gap:12}}>
+            {modules.map(([icon,title,desc])=><div key={title} style={{padding:"20px",border:"1px solid #202632",borderRadius:16,background:"#0b0e14"}}>
+              <div style={{fontSize:23,color:"#a6b0ff"}}>{icon}</div><h3 style={{margin:"13px 0 7px"}}>{title}</h3><p style={{margin:0,color:"#8993a5",lineHeight:1.45,fontSize:14}}>{desc}</p>
+            </div>)}
+          </div>
+        </section>
+
+        <section style={{padding:"clamp(30px,5vw,54px)",border:"1px solid #242c3a",borderRadius:24,background:"radial-gradient(circle at 80% 20%,rgba(104,120,255,.13),transparent 35%),#0b0f16",marginBottom:110}}>
+          <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.1fr) minmax(280px,.9fr)",gap:40,alignItems:"center"}}>
+            <div>
+              <div style={{fontSize:12,color:"#8e9cff",letterSpacing:2}}>AI CORE</div>
+              <h2 style={{fontSize:"clamp(34px,5vw,58px)",letterSpacing:"-.05em",margin:"13px 0 18px"}}>AI — это не отдельный чат.</h2>
+              <p style={{color:"#a0a9b9",fontSize:17,lineHeight:1.6}}>AI Core становится слоем управления бизнесом: анализирует данные, работает с процессами, запускает действия и может использовать подключённые пользователем или платформой модели.</p>
+              <div style={{display:"flex",flexWrap:"wrap",gap:9,marginTop:22}}>
+                {["Несколько AI-провайдеров","Свои модели","API","Агенты","Автоматизация"].map(x=><span key={x} style={{padding:"8px 11px",border:"1px solid #2b3445",borderRadius:9,color:"#b6bfce",fontSize:13}}>{x}</span>)}
+              </div>
+            </div>
+            <div style={{padding:22,border:"1px solid #283246",borderRadius:18,background:"#080b11",fontFamily:"monospace",fontSize:13,color:"#aeb8ca"}}>
+              <div style={{color:"#6f7c92"}}>AI CORE / ROUTER</div>
+              <div style={{marginTop:18,color:"#d8ddff"}}>MODEL → AGENT → TOOL</div>
+              <div style={{marginTop:10}}>↓</div>
+              <div style={{color:"#8fe1b0"}}>BUSINESS DATA</div>
+              <div style={{marginTop:10}}>↓</div>
+              <div style={{color:"#d8ddff"}}>WORKFLOW → ACTION</div>
+              <div style={{marginTop:18,color:"#6f7c92"}}>provider-independent architecture</div>
+            </div>
+          </div>
+        </section>
+
+        <section style={{marginBottom:110}}>
+          <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>HOW IT WORKS</div>
+          <h2 style={{fontSize:"clamp(34px,5vw,56px)",letterSpacing:"-.045em",margin:"12px 0 32px"}}>От идеи до работающей системы.</h2>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
+            {steps.map(([n,t,d])=><article key={n} style={{padding:22,borderTop:"1px solid #303847"}}>
+              <div style={{color:"#8995aa",fontFamily:"monospace"}}>{n}</div><h3 style={{margin:"18px 0 8px"}}>{t}</h3><p style={{color:"#8993a5",lineHeight:1.5,margin:0}}>{d}</p>
+            </article>)}
+          </div>
+        </section>
+
+        <section style={{textAlign:"center",padding:"76px 20px",borderTop:"1px solid #1c222d"}}>
+          <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>BUILD YOUR BUSINESS OS</div>
+          <h2 style={{fontSize:"clamp(38px,6vw,68px)",letterSpacing:"-.055em",margin:"16px auto",maxWidth:800}}>Создайте систему под свой бизнес.</h2>
+          <p style={{color:"#8f99aa",fontSize:17,margin:"0 auto 28px",maxWidth:650}}>Начните с готовой отраслевой структуры или соберите собственную с нуля.</p>
+          <Link href="/login?mode=signup" style={{display:"inline-block",background:"#fff",color:"#080a0e",textDecoration:"none",padding:"15px 24px",borderRadius:13,fontWeight:800}}>Начать работу →</Link>
+        </section>
+
+        <footer style={{display:"flex",justifyContent:"space-between",gap:15,flexWrap:"wrap",paddingTop:24,color:"#5f697a",fontSize:13}}>
+          <span>UB OS-RUS · Universal Business Operating System</span><span>Business OS · AI Core · Workflow Engine · API</span>
+        </footer>
       </div>
     </main>
   );
