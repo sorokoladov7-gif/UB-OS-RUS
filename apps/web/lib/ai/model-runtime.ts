@@ -38,9 +38,7 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   if (provider === "gemini" || provider === "google") {
     if (!model.api_key) throw new Error("AI_API_KEY_REQUIRED");
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model.model)}:generateContent?key=${encodeURIComponent(model.api_key)}`;
-    const contents = [{ role: "user", parts: [{ text: system ? system + "\
-\
-" + message : message }] }];
+    const contents = [{ role: "user", parts: [{ text: system ? system + "\\n\\n" + message : message }] }];
     const response = await fetch(url, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({contents}), cache:"no-store" });
     const json = await response.json().catch(()=>({}));
     if (!response.ok) throw new Error(String(json?.error?.message || "AI_PROVIDER_ERROR"));
