@@ -30,7 +30,7 @@ export async function GET(){
 export async function POST(req:Request){
   const {s,uid}=await auth(); if(!uid)return NextResponse.json({error:"Не авторизован"},{status:401});
   const b=await req.json().catch(()=>({}));
-  const {data,error}=await s.rpc("admin_create_ai_model",payload(b));
+  const {data,error}=await s.rpc("admin_create_ai_model_v2",payload(b));
   if(error)return NextResponse.json({error:error.message},{status:400});
   return NextResponse.json(data);
 }
