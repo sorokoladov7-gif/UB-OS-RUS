@@ -31,6 +31,25 @@ export async function POST(request: Request) {
   return NextResponse.json(data);
 }
 
+export async function PATCH(request: Request) {
+  const supabase = await createSupabaseServerClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims?.sub) return NextResponse.json({error:"Не авторизован"},{status:401});
+  const body=await request.json().catch(()=>null);
+  if(!body?.id) return NextResponse.json({error:"id обязателен"},{status:400});
+  if(body.action==="default"){
+    const {data,error}=await supabase.rpc("set_default_ai_model",{p_id:String(body.id)});
+    if(error) return NextResponse.json({error:error.message},{status:400});
+    return NextResponse.json({ok:Boolean(data)});
+  }
+  const {data,error}=await supabase.rpc("update_ai_model_connection",{
+    p_id:String(body.id),p_name:body.name??null,p_provider:body.provider??null,p_model:body.model??null,
+    p_base_url:body.baseUrl??null,p_api_key:body.apiKey??null,p_config:body.config??null,p_enabled:body.enabled!==false
+  });
+  if(error) return NextResponse.json({error:error.message},{status:400});
+  return NextResponse.json(data);
+}
+
 export async function DELETE(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
