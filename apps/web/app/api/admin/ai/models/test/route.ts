@@ -37,6 +37,26 @@ function baseUrl(v:string|null|undefined,p:string){
 
 type TestResult={id:string;name:string;passed:boolean;latencyMs:number;response:string;error?:string};
 
+class ProviderError extends Error{
+ status:number;
+ provider:string;
+ body:string;
+ constructor(provider:string,status:number,body:string){
+  super(\`Провайдер ${provider} вернул HTTP ${status}: ${body}\`);
+  this.name="ProviderError"; this.status=status; this.provider=provider; this.body=body;
+ }
+}
+
+async function readProviderBody(rr:Response){
+ const raw=await rr.text().catch(()=>"");
+ if(!raw)return "Пустой ответ от провайдера";
+ try{
+  const j=JSON.parse(raw);
+  const msg=j?.error?.message||j?.message||j?.error||raw;
+  return typeof msg==="string"?msg:JSON.stringify(msg);
+ }catch{return raw.slice(0,1200)}
+}
+
 async function callModel(m:any,prompt:string){
  const provider=String(m.provider||"").trim().toLowerCase();
  const started=Date.now();
@@ -46,9 +66,10 @@ async function callModel(m:any,prompt:string){
    const {model}=normalize(provider,m.model);
    const u=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(m.api_key)}`;
    const rr=await fetch(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:0.1}}),cache:"no-store"});
+   if(!rr.ok)throw new ProviderError(provider,rr.status,await readProviderBody(rr));
    const j=await rr.json().catch(()=>({}));
-   if(!rr.ok)throw new Error(String(j?.error?.message||"PROVIDER_ERROR"));
    text=j?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text||"").join("")||"";
+   if(!text)throw new Error("Провайдер вернул успешный HTTP-ответ, но без текста модели.");
  }else{
    const base=baseUrl(m.base_url,provider);
    if(!base)throw new Error("BASE_URL_NOT_CONFIGURED");
@@ -56,9 +77,10 @@ async function callModel(m:any,prompt:string){
    if(m.api_key)h.authorization=`Bearer ${m.api_key}`;
    const {model}=normalize(provider,m.model);
    const rr=await fetch(base+"/chat/completions",{method:"POST",headers:h,body:JSON.stringify({model,messages:[{role:"user",content:prompt}],temperature:0.1}),cache:"no-store"});
+   if(!rr.ok)throw new ProviderError(provider,rr.status,await readProviderBody(rr));
    const j=await rr.json().catch(()=>({}));
-   if(!rr.ok)throw new Error(String(j?.error?.message||j?.message||"PROVIDER_ERROR"));
    text=j?.choices?.[0]?.message?.content||"";
+   if(!text)throw new Error("Провайдер вернул успешный HTTP-ответ, но без текста модели.");
  }
  return {text:String(text||"").trim(),latencyMs:Date.now()-started};
 }
@@ -99,11 +121,14 @@ export async function POST(req:Request){
  }
  const results:TestResult[]=[];
  for(const test of TESTS){
+   const started=Date.now();
    try{
      const r=await callModel(m,test.prompt);
      results.push({id:test.id,name:test.name,passed:test.check(r.text),latencyMs:r.latencyMs,response:r.text.slice(0,2000)});
    }catch(e){
-     results.push({id:test.id,name:test.name,passed:false,latencyMs:0,response:"",error:e instanceof Error?e.message:"PROVIDER_ERROR"});
+     const msg=e instanceof Error?e.message:"PROVIDER_ERROR";
+     const latency=Date.now()-started;
+     results.push({id:test.id,name:test.name,passed:false,latencyMs:latency,response:"",error:msg});
    }
  }
  const passed=results.filter(x=>x.passed).length;
