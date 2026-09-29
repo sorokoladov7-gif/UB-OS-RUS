@@ -113,6 +113,32 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <section style={{marginBottom:110}}>
+          <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>AI INFRASTRUCTURE</div>
+          <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:14,marginTop:14}}>
+            {[
+              ["PLATFORM AI","Администратор платформы подключает и проверяет разные модели, назначает роли и резервные маршруты для AI Core."],
+              ["YOUR AI","Каждый пользователь может подключить собственную модель и использовать свой endpoint или API key, не раскрывая секреты другим пользователям."],
+              ["AI ROUTER","AI Core отделяет бизнес-логику от конкретного провайдера: модель можно заменить без перестройки бизнес-процессов."],
+              ["API FIRST","Внешние приложения могут обращаться к AI Core через защищённый API и работать с теми моделями, которые разрешены ключу."],
+            ].map(([title,desc])=><article key={title} style={{padding:24,border:"1px solid #202632",borderRadius:18,background:"#0b0e14"}}>
+              <div style={{fontFamily:"monospace",fontSize:11,color:"#8e9cff",letterSpacing:1.5}}>{title}</div>
+              <p style={{margin:"13px 0 0",color:"#929bad",lineHeight:1.6}}>{desc}</p>
+            </article>)}
+          </div>
+          <div style={{marginTop:14,padding:22,border:"1px solid #273143",borderRadius:18,background:"#0a0d13",fontFamily:"monospace",fontSize:13,overflowX:"auto"}}>
+            <span style={{color:"#7c879a"}}>BUSINESS</span>
+            <span style={{color:"#68758a"}}> → </span>
+            <span style={{color:"#d8ddff"}}>AI CORE</span>
+            <span style={{color:"#68758a"}}> → </span>
+            <span style={{color:"#8fe1b0"}}>MODEL ROUTER</span>
+            <span style={{color:"#68758a"}}> → </span>
+            <span style={{color:"#d8ddff"}}>PROVIDER / YOUR MODEL</span>
+            <span style={{color:"#68758a"}}> → </span>
+            <span style={{color:"#8fe1b0"}}>ACTION</span>
+          </div>
+        </section>
+
         <section style={{textAlign:"center",padding:"76px 20px",borderTop:"1px solid #1c222d"}}>
           <div style={{fontSize:12,color:"#7f8ba0",letterSpacing:2}}>BUILD YOUR BUSINESS OS</div>
           <h2 style={{fontSize:"clamp(38px,6vw,68px)",letterSpacing:"-.055em",margin:"16px auto",maxWidth:800}}>Создайте систему под свой бизнес.</h2>
