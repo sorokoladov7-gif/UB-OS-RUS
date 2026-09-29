@@ -129,6 +129,7 @@ export async function POST(req:Request){
      const msg=e instanceof Error?e.message:"PROVIDER_ERROR";
      const latency=Date.now()-started;
      results.push({id:test.id,name:test.name,passed:false,latencyMs:latency,response:"",error:msg});
+     if(msg.includes("HTTP 429")) break;
    }
  }
  const passed=results.filter(x=>x.passed).length;
