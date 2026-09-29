@@ -3,7 +3,7 @@
 
 import {useEffect,useState} from "react";
 
-type Model={id:string;name:string;provider:string;model:string;base_url:string|null;enabled:boolean;has_api_key:boolean};
+type Model={id:string;name:string;provider:string;model:string;base_url:string|null;enabled:boolean;has_api_key:boolean;is_default:boolean};
 
 const providers: Array<[string,string]> = [
   ["openai","OpenAI / совместимый API"],
@@ -29,7 +29,7 @@ export default function AiModelsPage(){
   }
   async function makeDefault(id:string){ const r=await fetch("/api/ai/models",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({id,action:"default"})}); if(r.ok){setMsg("Модель назначена основной");await load()}else{const j=await r.json();setMsg(j.error||"Ошибка")} }
   async function testModel(id:string){ setMsg("Проверяю модель…"); const r=await fetch("/api/ai/command",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({modelId:id,message:"Проверка подключения. Ответь одним коротким предложением: AI Core работает."})}); const j=await r.json(); setMsg(r.ok?`✓ Ответ модели: ${j.text||"пустой ответ"}`:`Ошибка модели: ${j.error||"неизвестная ошибка"}`); }
-  async function remove(id:string){
+  async function makeDefault(id:string){ const r=await fetch("/api/ai/models",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({id,action:"default"})}); if(r.ok) await load(); else {const j=await r.json();setMsg(j.error||"Не удалось выбрать модель")} }\n  async function remove(id:string){
     if(!confirm("Удалить это подключение к AI-модели?")) return;
     const r=await fetch("/api/ai/models?id="+encodeURIComponent(id),{method:"DELETE"});
     if(r.ok) await load(); else {const j=await r.json();setMsg(j.error||"Ошибка удаления")}
