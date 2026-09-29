@@ -1,0 +1,1 @@
+export default function AiModelsLayout({children}:{children:React.ReactNode}){return children}
