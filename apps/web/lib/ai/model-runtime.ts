@@ -68,6 +68,59 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   return { text, provider:model.provider, model:model.model };
 }
 
+export async function getPlatformDefaultAiModel(): Promise<AiModelRuntime | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.rpc("admin_get_ai_model_runtime", { p_id: null });
+  if (!data?.[0]) return null;
+  const model = data[0] as AiModelRuntime;
+  if (String(model.provider || "").toLowerCase() === "openrouter" && !isFreeOpenRouterModel(model.model)) return null;
+  return model;
+}
+
+export async function getPlatformFallbackAiModels(excludeId: string): Promise<AiModelRuntime[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.rpc("admin_list_ai_models");
+  const rows = Array.isArray(data) ? data : [];
+  const result: AiModelRuntime[] = [];
+  for (const row of rows
+    .filter((x:any) => x?.id && x.id !== excludeId && x.enabled !== false)
+    .filter((x:any) => String(x?.role || "").toLowerCase() === "fallback" || !x?.role)
+    .sort((a:any,b:any) => Number(a.priority ?? 100) - Number(b.priority ?? 100))
+    .slice(0, 5)) {
+    const { data: runtime } = await supabase.rpc("admin_get_ai_model_runtime", { p_id: String(row.id) });
+    if (!runtime?.[0] || runtime[0].enabled === false) continue;
+    const model = runtime[0] as AiModelRuntime;
+    if (String(model.provider || "").toLowerCase() === "openrouter" && !isFreeOpenRouterModel(model.model)) continue;
+    result.push(model);
+  }
+  return result;
+}
+
+export async function runPlatformAiModelWithFallback(
+  primary: AiModelRuntime,
+  message: string,
+  system?: string,
+): Promise<{text:string;provider:string;model:string;fallbackUsed:boolean;requestedModel:string}> {
+  try {
+    const result = await runAiModel(primary, message, system);
+    return {...result, fallbackUsed:false, requestedModel:primary.model};
+  } catch (primaryError) {
+    if (!isTransientAiError(primaryError)) throw primaryError;
+    const fallbacks = await getPlatformFallbackAiModels(primary.id);
+    let lastError: unknown = primaryError;
+    for (const fallback of fallbacks) {
+      try {
+        const result = await runAiModel(fallback, message, system);
+        return {...result, fallbackUsed:true, requestedModel:primary.model};
+      } catch (fallbackError) {
+        lastError = fallbackError;
+        if (!isTransientAiError(fallbackError)) break;
+      }
+    }
+    throw lastError;
+  }
+}
+
 export async function getDefaultAiModel(): Promise<AiModelRuntime | null> {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
