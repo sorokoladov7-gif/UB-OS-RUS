@@ -4,7 +4,9 @@ type Message={id:string;role:"user"|"assistant";text:string;time:Date};
 const suggestions=["Проверь состояние AI Core","Какие модели сейчас активны?","Объясни, как работает fallback","Проведи диагностику платформенного AI"];
 export default function AdminAiChat(){
  const[messages,setMessages]=useState<Message[]>([]),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[chats,setChats]=useState<any[]>([]),[active,setActive]=useState<string|null>(null),[sidebarOpen,setSidebarOpen]=useState(false);
- const[mobile,setMobile]=useState(false);\n useEffect(()=>{const sync=()=>setMobile(window.innerWidth<=700);sync();window.addEventListener("resize",sync);return()=>window.removeEventListener("resize",sync)},[]);\n const endRef=useRef<HTMLDivElement>(null);
+ const[mobile,setMobile]=useState(false);
+ useEffect(()=>{const sync=()=>setMobile(window.innerWidth<=700);sync();window.addEventListener("resize",sync);return()=>window.removeEventListener("resize",sync)},[]);
+ const endRef=useRef<HTMLDivElement>(null);
  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy]);
  useEffect(()=>{loadChats()},[]);
  async function loadChats(){const r=await fetch("/api/admin/ai/chat",{cache:"no-store"});const j=await r.json().catch(()=>({}));if(r.ok)setChats(j.items||[])}
@@ -60,7 +62,10 @@ export default function AdminAiChat(){
    </section>
   </div>
  </>
-const overlay={position:"absolute",inset:0,zIndex:20,border:0,background:"rgba(0,0,0,.58)",padding:0};\nconst menuBtn={width:38,height:38,border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",fontSize:19,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center"};\nconst mobileBack={width:38,height:38,display:"inline-flex",alignItems:"center",justifyContent:"center",border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",textDecoration:"none"};\nconst newBtn={width:"100%",padding:"12px",borderRadius:10,border:"1px solid #30394a",background:"#171d28",color:"#fff",cursor:"pointer"};
+const overlay={position:"absolute",inset:0,zIndex:20,border:0,background:"rgba(0,0,0,.58)",padding:0};
+const menuBtn={width:38,height:38,border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",fontSize:19,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center"};
+const mobileBack={width:38,height:38,display:"inline-flex",alignItems:"center",justifyContent:"center",border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",textDecoration:"none"};
+const newBtn={width:"100%",padding:"12px",borderRadius:10,border:"1px solid #30394a",background:"#171d28",color:"#fff",cursor:"pointer"};
 const trash={border:0,background:"transparent",color:"#718096",cursor:"pointer",fontSize:18,padding:"5px"};const headBtn={padding:"7px 10px",borderRadius:8,border:"1px solid #30394a",background:"#151b25",color:"#cbd4e4",cursor:"pointer"};
 const chatBtn={width:"100%",padding:"10px 12px",border:0,borderRadius:9,color:"#cbd4e4",textAlign:"left" as const,cursor:"pointer"};
 const back={color:"#9eabc0",textDecoration:"none",fontSize:13};
