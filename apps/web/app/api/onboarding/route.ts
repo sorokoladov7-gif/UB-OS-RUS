@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
@@ -6,7 +7,20 @@ export async function POST(request: NextRequest) {
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
   const body = await request.json();
-  const { data, error } = await supabase.rpc("bootstrap_business_v2", {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+  if (!accessToken) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
+
+  // The SSR client validates the cookie via getClaims(), but the RPC request
+  // must also carry the verified user JWT explicitly so PostgREST executes it
+  // as `authenticated` rather than falling back to `anon`.
+  const rpcSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://dibirswhvzebntwvdsyr.supabase.co",
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_zv6MamcORITfKZTia4BxNg_YdIdkfyW",
+    { global: { headers: { Authorization: `Bearer ${accessToken}` } } },
+  );
+
+  const { data, error } = await rpcSupabase.rpc("bootstrap_business_v2", {
     p_organization_name: body.organizationName,
     p_organization_slug: body.organizationSlug,
     p_workspace_name: body.workspaceName,
