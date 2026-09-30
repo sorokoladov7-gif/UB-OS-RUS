@@ -58,8 +58,7 @@ export async function POST(req:Request){
     if(!response.ok)throw new Error(String(json?.error?.message||json?.message||`Не удалось получить модели ${provider}.`));
     const raw=Array.isArray(json?.data)?json.data:Array.isArray(json?.models)?json.models:[];
     const items=raw.map((m:any)=>({id:String(m.id||m.name||"").trim(),name:m.name||m.id,description:m.description||""}))
-      .filter((m:any)=>!invalid(m.id))
-      .filter((m:any)=>provider!=="openrouter" || m.id==="openrouter/free" || /:free$/i.test(m.id));
+      .filter((m:any)=>!invalid(m.id));
     return NextResponse.json({items});
   }catch(e){
     return NextResponse.json({error:e instanceof Error?e.message:"Не удалось получить список моделей."},{status:502});
