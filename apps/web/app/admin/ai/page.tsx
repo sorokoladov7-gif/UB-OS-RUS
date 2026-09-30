@@ -63,7 +63,7 @@ async function saveModel(){
  return <AdminShell><section>
   <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
    <div><div style={{fontSize:12,letterSpacing:2,color:"#7e8cff"}}>AI CORE / MODEL CONTROL CENTER</div><h2 style={{marginBottom:6}}>Модели AI платформы</h2><p style={{color:"#9ea8ba",maxWidth:760}}>Единый реестр моделей для AI Core. Здесь администратор определяет, какие провайдеры и модели доступны самой платформе.</p></div>
-   <div style={{padding:"10px 14px",border:"1px solid #263044",borderRadius:12,background:"#101722"}}>Моделей: <b>{models.length}</b> · активных: <b>{models.filter(x=>x.enabled).length}</b></div>
+   <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><a href="/admin/ai/chat" style={{...btn,textDecoration:"none"}}>🤖 Открыть AI-чат</a><div style={{padding:"10px 14px",border:"1px solid #263044",borderRadius:12,background:"#101722"}}>Моделей: <b>{models.length}</b> · активных: <b>{models.filter(x=>x.enabled).length}</b></div></div>
   </div>
 
   <div style={{...box,marginTop:18}}>
