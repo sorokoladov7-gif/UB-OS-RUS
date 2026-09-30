@@ -6,9 +6,13 @@ export async function GET() {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) return NextResponse.json({ error:"Не авторизован" },{status:401});
-  const { data, error } = await supabase.rpc("list_ai_model_connections");
+  const [{ data, error }, { data:platformItems, error:platformError }] = await Promise.all([
+    supabase.rpc("list_ai_model_connections"),
+    supabase.rpc("list_platform_ai_models"),
+  ]);
   if (error) return NextResponse.json({ error:error.message },{status:400});
-  return NextResponse.json({ items:data||[] });
+  if (platformError) return NextResponse.json({ error:platformError.message },{status:400});
+  return NextResponse.json({ items:data||[], platformItems:platformItems||[] });
 }
 
 export async function POST(request: Request) {
