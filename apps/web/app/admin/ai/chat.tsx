@@ -1,0 +1,36 @@
+"use client";
+import {useEffect,useRef,useState} from "react";
+type Message={id:string;role:"user"|"assistant";text:string;time:Date};
+const suggestions=["Проверь состояние AI Core","Какие модели сейчас активны?","Объясни, как работает fallback","Проведи диагностику платформенного AI"];
+export default function AdminAiChat(){
+ const[messages,setMessages]=useState<Message[]>([]),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[chats,setChats]=useState<string[]>(["Новый чат"]),[active,setActive]=useState(0);
+ const endRef=useRef<HTMLDivElement>(null);
+ useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy]);
+ async function send(value=input){const text=value.trim();if(!text||busy)return;setInput("");setError("");setMessages(p=>[...p,{id:crypto.randomUUID(),role:"user",text,time:new Date()}]);setBusy(true);
+  try{const r=await fetch("/api/ai/command",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({message:text,system:"Ты внутренний AI-помощник администратора UB OS-RUS. Отвечай на русском языке. Ты работаешь внутри панели администратора. Помогай администратору анализировать и управлять AI Core, моделями платформы, тарифами, пользователями и системой. Не выдумывай результаты действий, которых не выполнял. Если для действия нужен отдельный инструмент, сообщи об этом."})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.message||j.error||"AI временно недоступен");setMessages(p=>[...p,{id:crypto.randomUUID(),role:"assistant",text:j.text||"AI не вернул ответ.",time:new Date()}]);}
+  catch(e){setError(e instanceof Error?e.message:"Не удалось получить ответ");}
+  finally{setBusy(false)}
+ }
+ function newChat(){setMessages([]);setError("");setChats(p=>[...p,"Новый чат"]);setActive(chats.length)}
+ function key(e:React.KeyboardEvent<HTMLTextAreaElement>){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}}
+ return <div style={{display:"flex",height:"calc(100vh - 80px)",minHeight:600,background:"#0b0f16",color:"#eef2ff",border:"1px solid #252d3b",borderRadius:16,overflow:"hidden"}}>
+  <aside style={{width:260,background:"#0a0d13",borderRight:"1px solid #252d3b",display:"flex",flexDirection:"column",padding:12}}>
+   <button onClick={newChat} style={newBtn}>＋ Новый чат</button>
+   <div style={{fontSize:11,color:"#7d8798",padding:"18px 10px 8px",letterSpacing:1}}>ЧАТЫ</div>
+   <div style={{overflowY:"auto",flex:1}}>{chats.map((x,i)=><button key={i} onClick={()=>setActive(i)} style={{...chatBtn,background:i===active?"#202734":"transparent"}}>💬 {x}</button>)}</div>
+   <div style={{borderTop:"1px solid #252d3b",paddingTop:12,fontSize:12,color:"#7d8798"}}>AI Core · панель администратора</div>
+  </aside>
+  <section style={{flex:1,minWidth:0,display:"flex",flexDirection:"column"}}>
+   <header style={{height:58,borderBottom:"1px solid #252d3b",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 18px",background:"#0d121a"}}><div><b>AI-помощник</b><div style={{fontSize:11,color:"#7d8798"}}>Платформенный AI Core</div></div><a href="/admin/ai" style={back}>⚙ AI Core</a></header>
+   <div style={{flex:1,overflowY:"auto",padding:"24px 18px 140px"}}>{messages.length===0?<div style={{maxWidth:760,margin:"12vh auto 0",textAlign:"center"}}><div style={{fontSize:54}}>✦</div><h1 style={{fontSize:32,margin:"14px 0 8px"}}>Чем могу помочь?</h1><p style={{color:"#8e99ab"}}>Внутренний AI-помощник администратора. Анализируйте AI Core и работу платформы в обычном диалоге.</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:10,marginTop:28}}>{suggestions.map(x=><button key={x} onClick={()=>send(x)} style={suggestion}>{x}</button>)}</div></div>:<div style={{maxWidth:820,margin:"0 auto"}}>{messages.map(m=><div key={m.id} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start",marginBottom:24}}><div style={{maxWidth:"82%",display:"flex",gap:10,alignItems:"flex-start"}}><div style={{width:30,height:30,borderRadius:8,display:"grid",placeItems:"center",background:m.role==="assistant"?"#193b3a":"#293246",flex:"0 0 auto"}}>{m.role==="assistant"?"✦":"Я"}</div><div><div style={{fontSize:12,color:"#8e99ab",marginBottom:5}}>{m.role==="assistant"?"AI-помощник":"Вы"}</div><div style={{whiteSpace:"pre-wrap",lineHeight:1.65,fontSize:15}}>{m.text}</div></div></div></div>)}{busy&&<div style={{display:"flex",gap:10,color:"#8e99ab"}}><div style={{width:30,height:30,borderRadius:8,display:"grid",placeItems:"center",background:"#193b3a"}}>✦</div><div style={{paddingTop:5}}>AI печатает…</div></div>}<div ref={endRef}/></div>}</div>
+   {error&&<div style={{maxWidth:820,width:"calc(100% - 32px)",margin:"0 auto 8px",color:"#ff9ea8",fontSize:13}}>⚠️ {error}</div>}
+   <div style={{position:"relative",padding:"12px 18px 18px",borderTop:"1px solid #252d3b",background:"#0d121a"}}><div style={{maxWidth:820,margin:"0 auto",border:"1px solid #394457",borderRadius:18,background:"#111722",padding:10,display:"flex",gap:8,alignItems:"flex-end"}}><textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={key} disabled={busy} rows={1} placeholder="Сообщить AI, что нужно сделать…" style={textarea}/><button onClick={()=>send()} disabled={busy||!input.trim()} style={sendBtn}>{busy?"…":"↑"}</button></div><div style={{maxWidth:820,margin:"8px auto 0",fontSize:11,color:"#596579",textAlign:"center"}}>AI может ошибаться. Проверяйте важные сведения перед изменениями.</div></div>
+  </section>
+ </div>
+}
+const newBtn={width:"100%",padding:"12px",borderRadius:10,border:"1px solid #30394a",background:"#171d28",color:"#fff",cursor:"pointer"};
+const chatBtn={width:"100%",padding:"10px 12px",border:0,borderRadius:9,color:"#cbd4e4",textAlign:"left" as const,cursor:"pointer"};
+const back={color:"#9eabc0",textDecoration:"none",fontSize:13};
+const suggestion={padding:"14px",borderRadius:12,border:"1px solid #30394a",background:"#121822",color:"#d8dfeb",cursor:"pointer",textAlign:"left" as const};
+const textarea={flex:1,minHeight:26,maxHeight:150,resize:"none" as const,border:0,outline:"none",background:"transparent",color:"#fff",fontSize:15,padding:"8px"};
+const sendBtn={width:40,height:40,borderRadius:10,border:"0",background:"#d9f5ee",color:"#07110f",fontSize:20,cursor:"pointer"};
