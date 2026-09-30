@@ -112,7 +112,7 @@ export async function runPlatformAiModelWithFallback(
     const result = await runAiModel(primary, message, system);
     return {...result, fallbackUsed:false, requestedModel:primary.model};
   } catch (primaryError) {
-    if (!isTransientAiError(primaryError)) throw primaryError;
+    if (!isPlatformFallbackError(primaryError)) throw primaryError;
     const fallbacks = await getPlatformFallbackAiModels(primary.id);
     let lastError: unknown = primaryError;
     for (const fallback of fallbacks) {
@@ -135,6 +135,13 @@ export async function getDefaultAiModel(): Promise<AiModelRuntime | null> {
   const { data, error } = await supabase.rpc("get_default_ai_model");
   if (error || !data?.[0]) return null;
   return data[0] as AiModelRuntime;
+}
+
+function isPlatformFallbackError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return isTransientAiError(error) ||
+    /AI_PROVIDER_HTTP_(400|402|404|409)/.test(message) ||
+    /no endpoints|model.*not found|endpoint.*not found|no.*provider/i.test(message);
 }
 
 function isTransientAiError(error: unknown): boolean {
