@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -17,4 +18,25 @@ export async function createSupabaseServerClient() {
       },
     },
   );
+}
+
+/**
+ * Server-only privileged client.
+ * The secret/service-role key must never be exposed to browser code.
+ */
+export function createSupabaseServiceRoleClient() {
+  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://dibirswhvzebntwvdsyr.supabase.co";
+  const key =
+    process.env.SUPABASE_SECRET_KEY ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!key) throw new Error("SUPABASE_SERVER_SECRET_REQUIRED");
+
+  return createClient(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
 }
