@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPlatformDefaultAiModel, runPlatformAiModelWithFallback } from "@/lib/ai/model-runtime";
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
   const uid = claims?.claims?.sub;
@@ -17,7 +17,7 @@ export async function GET() {
     message: "Основная бесплатная AI-модель не настроена."
   }, { status: 503 });
 
-  const workspaceId = new URLSearchParams().get("workspaceId");
+  const workspaceId = new URL(request.url).searchParams.get("workspaceId");
   const started = Date.now();
   try {
     const result = await runPlatformAiModelWithFallback(
