@@ -15,7 +15,7 @@ export async function GET() {
   return NextResponse.json({ items:data||[], platformItems:platformItems||[] });
 }
 
-function validateModel(provider:string,model:string){const p=String(provider||"").trim().toLowerCase(),m=String(model||"").trim();if(!m)return "Укажите Model ID.";if(/^(any|undefined|null|none|default|auto|\[object object\])$/i.test(m))return "Неверный Model ID.";if(/\s/.test(m))return "Model ID не должен содержать пробелы.";if(p==="openrouter"&&!((m==="openrouter/free")||/:free$/i.test(m)))return "Для OpenRouter доступны только бесплатные модели (:free или openrouter/free).";return "";}\n\nexport async function POST(request: Request) {
+export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) return NextResponse.json({ error:"Не авторизован" },{status:401});
