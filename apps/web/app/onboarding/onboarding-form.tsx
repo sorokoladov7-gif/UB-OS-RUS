@@ -9,11 +9,36 @@ type Industry = { key:string; name:string; description:string|null; version:stri
 function slugify(value:string){return value.toLowerCase().trim().replace(/[^a-zа-яё0-9]+/gi,"-").replace(/^-+|-+$/g,"").slice(0,48)||"business";}
 
 export default function OnboardingForm({plans,industries,selectedPlan}:{plans:Plan[];industries:Industry[];selectedPlan:string}) {
- const router=useRouter(); const [plan,setPlan]=useState(selectedPlan); const [industry,setIndustry]=useState(industries[0]?.key??"professional_services");
- const [name,setName]=useState(""); const [workspace,setWorkspace]=useState(""); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
- async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError("");
-  const response=await fetch("/api/onboarding",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({organizationName:name,organizationSlug:slugify(name),workspaceName:workspace||name,workspaceSlug:slugify(workspace||name),planKey:plan,industryKey:industry})});
-  const data=await response.json().catch(()=>({})); if(data?.redirect){router.push(String(data.redirect));router.refresh();return;} if(!response.ok)setError(data.error||"Не удалось создать систему."); else {router.push("/app/setup?industry="+encodeURIComponent(industry));router.refresh();} setBusy(false);
+ const router=useRouter();
+ const [plan,setPlan]=useState(selectedPlan);
+ const [industry,setIndustry]=useState(industries[0]?.key??"professional_services");
+ const [name,setName]=useState("");
+ const [workspace,setWorkspace]=useState("");
+ const [busy,setBusy]=useState(false);
+ const [error,setError]=useState("");
+
+ async function submit(e:FormEvent){
+  e.preventDefault();
+  if(busy)return;
+  const organizationName=name.trim();
+  const workspaceName=(workspace||name).trim();
+  if(organizationName.length<2){setError("Укажите название бизнеса.");return;}
+  if(!plan){setError("Выберите тариф.");return;}
+  if(!industry){setError("Выберите направление бизнеса.");return;}
+  setBusy(true);
+  setError("");
+  try{
+   const response=await fetch("/api/onboarding",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({organizationName,organizationSlug:slugify(organizationName),workspaceName,workspaceSlug:slugify(workspaceName),planKey:plan,industryKey:industry})});
+   const data=await response.json().catch(()=>({}));
+   if(data?.redirect){router.push(String(data.redirect));router.refresh();return;}
+   if(!response.ok){setError(data.error||"Не удалось создать систему.");return;}
+   router.push("/app/setup?industry="+encodeURIComponent(industry));
+   router.refresh();
+  }catch{
+   setError("Не удалось связаться с сервером. Проверьте соединение и попробуйте ещё раз.");
+  }finally{
+   setBusy(false);
+  }
  }
  return <main style={{minHeight:"100vh",background:"#0b0d12",color:"#f7f8fa",padding:"32px 20px",fontFamily:"system-ui"}}><div style={{maxWidth:980,margin:"0 auto"}}>
   <div style={{color:"#8f9ab0",fontSize:13,letterSpacing:".12em"}}>НАСТРОЙКА · UB OS-RUS</div>
@@ -26,8 +51,8 @@ export default function OnboardingForm({plans,industries,selectedPlan}:{plans:Pl
     <label>Название бизнеса<input value={name} onChange={e=>setName(e.target.value)} required minLength={2} placeholder="Например, ООО «Мой бизнес»" style={{display:"block",width:"100%",marginTop:7,padding:14,borderRadius:12,border:"1px solid #303747",background:"#121620",color:"white",boxSizing:"border-box"}}/></label>
     <label>Название рабочего пространства<input value={workspace} onChange={e=>setWorkspace(e.target.value)} placeholder="Можно оставить пустым — будет как название бизнеса" style={{display:"block",width:"100%",marginTop:7,padding:14,borderRadius:12,border:"1px solid #303747",background:"#121620",color:"white",boxSizing:"border-box"}}/></label>
    </section>
-   {error&&<div style={{color:"#ffb4b4",padding:14,border:"1px solid #693a3a",borderRadius:12}}>{error}</div>}
-   <button disabled={busy} style={{width:"fit-content",padding:"15px 24px",borderRadius:12,border:0,fontWeight:800}}>{busy?"Создаём систему…":"Создать систему"}</button>
+   {error&&<div role="alert" style={{color:"#ffb4b4",padding:14,border:"1px solid #693a3a",borderRadius:12}}>{error}</div>}
+   <button disabled={busy} style={{width:"fit-content",padding:"15px 24px",borderRadius:12,border:0,fontWeight:800,opacity:busy?.65:1,cursor:busy?"wait":"pointer"}}>{busy?"Создаём систему…":"Создать систему"}</button>
   </form>
  </div></main>;
 }
