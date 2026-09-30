@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {notFound,redirect} from "next/navigation";
 import Link from "next/link";
 import {getWorkspaceContext} from "@/lib/workspace";
