@@ -14,6 +14,22 @@ export async function POST(request: NextRequest) {
     p_plan_key: body.planKey,
     p_industry_key: body.industryKey,
   });
-  if (error) return NextResponse.json({ error: error.message || "BOOTSTRAP_FAILED" }, { status: 400 });
+  if (error) {
+    const message = String(error.message || "BOOTSTRAP_FAILED");
+    if (message.includes("USER_ALREADY_HAS_ACTIVE_ORGANIZATION")) {
+      return NextResponse.json({ error: "BUSINESS_ALREADY_EXISTS", redirect: "/app" }, { status: 409 });
+    }
+    if (message.includes("PLAN_NOT_FOUND")) {
+      return NextResponse.json({ error: "Выбранный тариф недоступен. Обновите страницу и выберите тариф ещё раз." }, { status: 422 });
+    }
+    if (message.includes("INDUSTRY_PACKAGE_NOT_FOUND")) {
+      return NextResponse.json({ error: "Выбранное направление бизнеса недоступно. Обновите страницу и выберите направление ещё раз." }, { status: 422 });
+    }
+    if (message.includes("SLUG_ALREADY_EXISTS")) {
+      return NextResponse.json({ error: "Бизнес с таким названием уже существует. Укажите другое название." }, { status: 409 });
+    }
+    console.error("[api/onboarding] bootstrap failed", { code: message });
+    return NextResponse.json({ error: "Не удалось создать бизнес-систему. Попробуйте ещё раз." }, { status: 500 });
+  }
   return NextResponse.json(data);
 }
