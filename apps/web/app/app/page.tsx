@@ -41,7 +41,7 @@ export default async function AppPage() {
           <h1 style={{ margin: "6px 0" }}>{workspace?.name ?? "Workspace"}</h1>
           <p style={{ margin: 0, opacity: 0.7 }}>Universal Business Operating System</p>
         </div>
-        <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><Link href="/app/ai-models" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>🤖 Мои AI-модели</Link><Link href="/app/builder" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>Конструктор бизнеса</Link><Link href="/app/ai" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>🤖 Мои AI-модели</Link>
+        <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><Link href="/app/ai-models" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>🤖 Мои AI-модели</Link><Link href="/app/builder" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>Конструктор бизнеса</Link>
           {isPlatformOwner && <Link href="/admin" style={{padding:"10px 14px",border:"1px solid #111",borderRadius:12,textDecoration:"none",color:"inherit"}}>⚙ Админ платформы</Link>}
           <div style={{ padding: 12, border: "1px solid #ddd", borderRadius: 12 }}>
             Организаций: {new Set(context.workspaces.map((w) => w.organization_id)).size}
