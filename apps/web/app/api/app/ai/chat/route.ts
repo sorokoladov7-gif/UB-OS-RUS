@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
 import {getWorkspaceContext} from "@/lib/workspace";
+import {createSupabaseServerClient} from "@/lib/supabase/server";
 
 async function context(){
   const c=await getWorkspaceContext();
@@ -10,8 +11,8 @@ async function context(){
 export async function GET(){
   const c=await context();
   if(!c)return NextResponse.json({error:"Рабочее пространство не найдено"},{status:403});
-  const {data,error}=await (await import("@/lib/supabase/server")).createSupabaseServerClient()
-    .then(s=>s.from("ai_conversations").select("id,title,created_at,updated_at").eq("workspace_id",c.activeWorkspace.id).eq("user_id",c.userId).order("updated_at",{ascending:false}));
+  const supabase=await createSupabaseServerClient();
+  const {data,error}=await supabase.from("ai_conversations").select("id,title,created_at,updated_at").eq("workspace_id",c.activeWorkspace.id).eq("user_id",c.userId).order("updated_at",{ascending:false));
   if(error)return NextResponse.json({error:error.message},{status:400});
   return NextResponse.json({items:data??[],workspace:c.activeWorkspace});
 }
@@ -19,7 +20,7 @@ export async function GET(){
 export async function POST(req:Request){
   const c=await context();
   if(!c)return NextResponse.json({error:"Рабочее пространство не найдено"},{status:403});
-  const supabase=await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+  const supabase=await createSupabaseServerClient();
   const b=await req.json().catch(()=>({}));
   const message=String(b.message||"").trim();
   if(!message)return NextResponse.json({error:"Сообщение пустое"},{status:400});
