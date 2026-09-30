@@ -12,7 +12,7 @@ export async function GET(){
   const c=await context();
   if(!c)return NextResponse.json({error:"Рабочее пространство не найдено"},{status:403});
   const supabase=await createSupabaseServerClient();
-  const {data,error}=await supabase.from("ai_conversations").select("id,title,created_at,updated_at").eq("workspace_id",c.activeWorkspace.id).eq("user_id",c.userId).order("updated_at",{ascending:false));
+  const {data,error}=await supabase.from("ai_conversations").select("id,title,created_at,updated_at").eq("workspace_id",c.activeWorkspace.id).eq("user_id",c.userId).order("updated_at",{ascending:false});
   if(error)return NextResponse.json({error:error.message},{status:400});
   return NextResponse.json({items:data??[],workspace:c.activeWorkspace});
 }
