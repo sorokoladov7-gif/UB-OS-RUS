@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import type {CSSProperties} from "react";
 type Message={id:string;role:"user"|"assistant";text:string;time:Date};
 const suggestions=["Проверь состояние AI Core","Какие модели сейчас активны?","Объясни, как работает fallback","Проведи диагностику платформенного AI"];
 export default function AdminAiChat(){
@@ -63,13 +64,13 @@ export default function AdminAiChat(){
   </div>
  </>
 }
-const overlay={position:"absolute",inset:0,zIndex:20,border:0,background:"rgba(0,0,0,.58)",padding:0};
-const menuBtn={width:38,height:38,border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",fontSize:19,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center"};
-const mobileBack={width:38,height:38,display:"inline-flex",alignItems:"center",justifyContent:"center",border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",textDecoration:"none"};
-const newBtn={width:"100%",padding:"12px",borderRadius:10,border:"1px solid #30394a",background:"#171d28",color:"#fff",cursor:"pointer"};
-const trash={border:0,background:"transparent",color:"#718096",cursor:"pointer",fontSize:18,padding:"5px"};const headBtn={padding:"7px 10px",borderRadius:8,border:"1px solid #30394a",background:"#151b25",color:"#cbd4e4",cursor:"pointer"};
-const chatBtn={width:"100%",padding:"10px 12px",border:0,borderRadius:9,color:"#cbd4e4",textAlign:"left" as const,cursor:"pointer"};
-const back={color:"#9eabc0",textDecoration:"none",fontSize:13};
-const suggestion={padding:"14px",borderRadius:12,border:"1px solid #30394a",background:"#121822",color:"#d8dfeb",cursor:"pointer",textAlign:"left" as const};
-const textarea={flex:1,minHeight:26,maxHeight:150,resize:"none" as const,border:0,outline:"none",background:"transparent",color:"#fff",fontSize:15,padding:"8px"};
-const sendBtn={width:40,height:40,borderRadius:10,border:"0",background:"#d9f5ee",color:"#07110f",fontSize:20,cursor:"pointer"};
+const overlay:CSSProperties={position:"absolute",inset:0,zIndex:20,border:0,background:"rgba(0,0,0,.58)",padding:0};
+const menuBtn:CSSProperties={width:38,height:38,border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",fontSize:19,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center"};
+const mobileBack:CSSProperties={width:38,height:38,display:"inline-flex",alignItems:"center",justifyContent:"center",border:"1px solid #30394a",borderRadius:10,background:"#151b25",color:"#fff",textDecoration:"none"};
+const newBtn:CSSProperties={width:"100%",padding:"12px",borderRadius:10,border:"1px solid #30394a",background:"#171d28",color:"#fff",cursor:"pointer"};
+const trash:CSSProperties={border:0,background:"transparent",color:"#718096",cursor:"pointer",fontSize:18,padding:"5px"};const headBtn:CSSProperties={padding:"7px 10px",borderRadius:8,border:"1px solid #30394a",background:"#151b25",color:"#cbd4e4",cursor:"pointer"};
+const chatBtn:CSSProperties={width:"100%",padding:"10px 12px",border:0,borderRadius:9,color:"#cbd4e4",textAlign:"left" as const,cursor:"pointer"};
+const back:CSSProperties={color:"#9eabc0",textDecoration:"none",fontSize:13};
+const suggestion:CSSProperties={padding:"14px",borderRadius:12,border:"1px solid #30394a",background:"#121822",color:"#d8dfeb",cursor:"pointer",textAlign:"left" as const};
+const textarea:CSSProperties={flex:1,minHeight:26,maxHeight:150,resize:"none" as const,border:0,outline:"none",background:"transparent",color:"#fff",fontSize:15,padding:"8px"};
+const sendBtn:CSSProperties={width:40,height:40,borderRadius:10,border:"0",background:"#d9f5ee",color:"#07110f",fontSize:20,cursor:"pointer"};
