@@ -3,6 +3,7 @@ import Link from "next/link";
 import {getWorkspaceContext} from "@/lib/workspace";
 import {createSupabaseServerClient} from "@/lib/supabase/server";
 import {RecordPanel} from "../../builder/record-panel";
+import {ModuleDashboard} from "../module-dashboard";
 
 const catalog:Record<string,{title:string;description:string}> = {
  crm:{title:"Клиенты и CRM",description:"Клиенты, контакты и история взаимодействий."},
@@ -37,6 +38,7 @@ export default async function ModulePage({params}:{params:Promise<{key:string}>}
  ]);
  return <main style={shell}><div style={{maxWidth:1180,margin:"0 auto",padding:"24px 16px 60px"}}>
   <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"flex-start",flexWrap:"wrap"}}><div><Link href="/app" style={back}>← В систему</Link><div style={eyebrow}>UB OS-RUS · РАБОЧИЙ МОДУЛЬ</div><h1 style={{fontSize:"clamp(28px,5vw,44px)",margin:"7px 0"}}>{meta.title}</h1><p style={muted}>{meta.description} Бизнес: {context.activeWorkspace.name}.</p></div><Link href="/app/builder" style={builder}>⚙ Настроить структуру</Link></div>
+  <ModuleDashboard moduleKey={key} fields={fields??[]} statuses={statuses??[]} records={records??[]}/>
   <RecordPanel workspaceId={context.activeWorkspace.id} entityId={entity.id} fields={fields??[]} statuses={statuses??[]} initialRecords={records??[]}/>
  </div></main>;
 }
