@@ -34,7 +34,7 @@ export async function POST(req:Request){
     const {data:created,error}=await supabase.from("ai_conversations").insert({
       workspace_id:c.activeWorkspace.id,user_id:c.userId,title:message.slice(0,60)||"Новый чат",context:{source:"user_ai_chat"}
     }).select("id,title,created_at,updated_at").single();
-    if(error)return NextResponse.json({error:error.message},{status:400});
+    if(error||!created)return NextResponse.json({error:error?.message||"Не удалось создать чат"},{status:400});
     id=created.id;
   }
 
