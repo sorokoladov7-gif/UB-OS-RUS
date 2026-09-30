@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type Model={id:string;name:string;provider:string;model:string;base_url:string|null;enabled:boolean;has_api_key:boolean};
+type PlatformModel={id:string;name:string;provider:string;model:string;enabled:boolean;is_default:boolean;priority:number;role:string};
 
 const providers=[
   ["openai","OpenAI / OpenAI-compatible"],
@@ -16,6 +17,7 @@ const providers=[
 
 export default function AiModelsPage(){
   const [items,setItems]=useState<Model[]>([]);
+  const [platformItems,setPlatformItems]=useState<PlatformModel[]>([]);
   const [name,setName]=useState("");
   const [provider,setProvider]=useState("openai");
   const [model,setModel]=useState("");
@@ -27,7 +29,7 @@ export default function AiModelsPage(){
   async function load(){
     const r=await fetch("/api/ai/models",{cache:"no-store"});
     const j=await r.json();
-    if(r.ok)setItems(j.items||[]); else setMsg(j.error||"Не удалось загрузить модели");
+    if(r.ok){setItems(j.items||[]);setPlatformItems(j.platformItems||[])} else setMsg(j.error||"Не удалось загрузить модели");
   }
   useEffect(()=>{load()},[]);
 
@@ -46,9 +48,22 @@ export default function AiModelsPage(){
 
   return <main style={{maxWidth:1050,margin:"0 auto",padding:24,fontFamily:"system-ui",color:"#eef2ff"}}>
     <header style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"center",flexWrap:"wrap"}}>
-      <div><Link href="/app" style={{color:"#8be8d7",textDecoration:"none"}}>← Бизнес</Link><h1 style={{margin:"10px 0 4px"}}>Мои AI-модели</h1><p style={{margin:0,color:"#9ea8ba"}}>Подключайте свои модели. Каждая модель принадлежит только вашей учётной записи.</p></div>
+      <div><Link href="/app" style={{color:"#8be8d7",textDecoration:"none"}}>← Бизнес</Link><h1 style={{margin:"10px 0 4px"}}>Мои AI-модели</h1><p style={{margin:0,color:"#9ea8ba"}}>Здесь доступны модели платформы и ваши собственные подключения.</p></div>
       <Link href="/admin/ai" style={{color:"#9ea8ba"}}>AI Core платформы →</Link>
     </header>
+
+    <section style={{...box,marginTop:18}}>
+      <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",flexWrap:"wrap"}}>
+        <div>
+          <h2 style={{margin:"0 0 6px"}}>🤖 Модели платформы</h2>
+          <p style={{margin:0,color:"#9ea8ba"}}>Модели, подключённые администратором. Они доступны вашей бизнес-системе без передачи API-ключей.</p>
+        </div>
+        <span style={{fontSize:12,color:"#8be8d7"}}>{platformItems.length} подключено</span>
+      </div>
+      <div style={{display:"grid",gap:10,marginTop:14}}>
+        {platformItems.length===0?<div style={{color:"#9ea8ba"}}>Администратор ещё не подключил доступные модели.</div>:platformItems.map(x=><article key={x.id} style={{padding:14,border:"1px solid #293244",borderRadius:14,background:"#0b111a"}}><div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}><div><strong>{x.name}</strong><div style={{color:"#9ea8ba",marginTop:4}}>{x.provider} · <code>{x.model}</code></div></div><div style={{fontSize:12,color:x.is_default?"#8be8d7":"#9ea8ba"}}>{x.is_default?"Основная":"Резервная"}</div></div></article>)}
+      </div>
+    </section>
 
     <section style={box}>
       <h2 style={{marginTop:0}}>＋ Подключить модель</h2>
@@ -63,7 +78,7 @@ export default function AiModelsPage(){
       {msg&&<div style={{marginTop:12,color:"#9ea8ba"}}>{msg}</div>}
     </section>
 
-    <section style={{display:"grid",gap:12,marginTop:18}}>
+    <section style={{display:"grid",gap:12,marginTop:18}}><h2 style={{margin:"4px 0 0"}}>Мои подключения</h2>
       {items.length===0?<div style={box}>Пока нет пользовательских моделей.</div>:items.map(x=><article key={x.id} style={box}><div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}><div><strong style={{fontSize:18}}>{x.name}</strong><div style={{color:"#9ea8ba",marginTop:5}}>{x.provider} · <code>{x.model}</code></div><div style={{fontSize:12,color:"#718096",marginTop:5}}>{x.base_url||"Стандартный endpoint"} · {x.has_api_key?"API key сохранён":"Без API key"}</div></div><button onClick={()=>remove(x.id)} style={danger}>Удалить</button></div></article>)}
     </section>
   </main>
