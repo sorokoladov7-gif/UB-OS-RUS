@@ -5,13 +5,18 @@ const suggestions=["Проверь состояние AI Core","Какие мо�
 export default function AdminAiChat(){
  const[messages,setMessages]=useState<Message[]>([]),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[chats,setChats]=useState<any[]>([]),[active,setActive]=useState<string|null>(null);
  const endRef=useRef<HTMLDivElement>(null);
- useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy]);\n useEffect(()=>{loadChats()},[]);\n async function loadChats(){const r=await fetch("/api/admin/ai/chat",{cache:"no-store"});const j=await r.json().catch(()=>({}));if(r.ok)setChats(j.items||[])}\n async function openChat(id:string){setActive(id);setError("");const r=await fetch("/api/admin/ai/chat/"+id,{cache:"no-store"});const j=await r.json().catch(()=>({}));if(r.ok)setMessages((j.messages||[]).map((m:any)=>({id:m.id,role:m.role,text:m.content,time:new Date(m.created_at)})))}
+ useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy]);
+ useEffect(()=>{loadChats()},[]);
+ async function loadChats(){const r=await fetch("/api/admin/ai/chat",{cache:"no-store"});const j=await r.json().catch(()=>({}));if(r.ok)setChats(j.items||[])}
+ async function openChat(id:string){setActive(id);setError("");const r=await fetch("/api/admin/ai/chat/"+id,{cache:"no-store"});const j=await r.json().catch(()=>({}));if(r.ok)setMessages((j.messages||[]).map((m:any)=>({id:m.id,role:m.role,text:m.content,time:new Date(m.created_at)})))}
  async function send(value=input){const text=value.trim();if(!text||busy)return;setInput("");setError("");setMessages(p=>[...p,{id:crypto.randomUUID(),role:"user",text,time:new Date()}]);setBusy(true);
   try{const r=await fetch("/api/admin/ai/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({conversationId:active,message:text})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"AI временно недоступен");if(!active)setActive(j.conversationId);setMessages(p=>[...p,{id:crypto.randomUUID(),role:"assistant",text:j.text||"AI не вернул ответ.",time:new Date()}]);await loadChats();}
   catch(e){setError(e instanceof Error?e.message:"Не удалось получить ответ");}
   finally{setBusy(false)}
  }
- function newChat(){setMessages([]);setError("");setActive(null)}\n async function renameChat(){if(!active)return;const current=chats.find(x=>x.id===active);const title=window.prompt("Название чата",current?.title||"Новый чат");if(!title?.trim())return;const r=await fetch("/api/admin/ai/chat/"+active,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({title})});if(r.ok)await loadChats()}\n async function deleteChat(id:string){if(!window.confirm("Удалить этот чат и его историю?"))return;const r=await fetch("/api/admin/ai/chat/"+id,{method:"DELETE"});if(r.ok){if(active===id){setActive(null);setMessages([])}await loadChats()}}
+ function newChat(){setMessages([]);setError("");setActive(null)}
+ async function renameChat(){if(!active)return;const current=chats.find(x=>x.id===active);const title=window.prompt("Название чата",current?.title||"Новый чат");if(!title?.trim())return;const r=await fetch("/api/admin/ai/chat/"+active,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({title})});if(r.ok)await loadChats()}
+ async function deleteChat(id:string){if(!window.confirm("Удалить этот чат и его историю?"))return;const r=await fetch("/api/admin/ai/chat/"+id,{method:"DELETE"});if(r.ok){if(active===id){setActive(null);setMessages([])}await loadChats()}}
  function key(e:React.KeyboardEvent<HTMLTextAreaElement>){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}}
  return <div style={{display:"flex",height:"calc(100vh - 80px)",minHeight:600,background:"#0b0f16",color:"#eef2ff",border:"1px solid #252d3b",borderRadius:16,overflow:"hidden"}}>
   <aside style={{width:260,background:"#0a0d13",borderRight:"1px solid #252d3b",display:"flex",flexDirection:"column",padding:12}}>
@@ -29,7 +34,8 @@ export default function AdminAiChat(){
  </div>
 }
 const newBtn={width:"100%",padding:"12px",borderRadius:10,border:"1px solid #30394a",background:"#171d28",color:"#fff",cursor:"pointer"};
-const trash={border:0,background:"transparent",color:"#718096",cursor:"pointer",fontSize:18,padding:"5px"};const headBtn={padding:"7px 10px",borderRadius:8,border:"1px solid #30394a",background:"#151b25",color:"#cbd4e4",cursor:"pointer"};\nconst chatBtn={width:"100%",padding:"10px 12px",border:0,borderRadius:9,color:"#cbd4e4",textAlign:"left" as const,cursor:"pointer"};
+const trash={border:0,background:"transparent",color:"#718096",cursor:"pointer",fontSize:18,padding:"5px"};const headBtn={padding:"7px 10px",borderRadius:8,border:"1px solid #30394a",background:"#151b25",color:"#cbd4e4",cursor:"pointer"};
+const chatBtn={width:"100%",padding:"10px 12px",border:0,borderRadius:9,color:"#cbd4e4",textAlign:"left" as const,cursor:"pointer"};
 const back={color:"#9eabc0",textDecoration:"none",fontSize:13};
 const suggestion={padding:"14px",borderRadius:12,border:"1px solid #30394a",background:"#121822",color:"#d8dfeb",cursor:"pointer",textAlign:"left" as const};
 const textarea={flex:1,minHeight:26,maxHeight:150,resize:"none" as const,border:0,outline:"none",background:"transparent",color:"#fff",fontSize:15,padding:"8px"};
