@@ -36,3 +36,5 @@ Next.js, TypeScript, React, PostgreSQL/Supabase, Vercel, GitHub.
 - server-only payment secrets
 - auditable workflow and AI execution
 - provider-neutral AI and integration adapters
+
+<!-- deployment trigger: module build verification -->
