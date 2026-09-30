@@ -13,7 +13,7 @@ export default function OnboardingForm({plans,industries,selectedPlan}:{plans:Pl
  const [name,setName]=useState(""); const [workspace,setWorkspace]=useState(""); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
  async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError("");
   const response=await fetch("/api/onboarding",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({organizationName:name,organizationSlug:slugify(name),workspaceName:workspace||name,workspaceSlug:slugify(workspace||name),planKey:plan,industryKey:industry})});
-  const data=await response.json().catch(()=>({})); if(!response.ok)setError(data.error||"Не удалось создать систему."); else {router.push("/app");router.refresh();} setBusy(false);
+  const data=await response.json().catch(()=>({})); if(data?.redirect){router.push(String(data.redirect));router.refresh();return;} if(!response.ok)setError(data.error||"Не удалось создать систему."); else {router.push("/app");router.refresh();} setBusy(false);
  }
  return <main style={{minHeight:"100vh",background:"#0b0d12",color:"#f7f8fa",padding:"32px 20px",fontFamily:"system-ui"}}><div style={{maxWidth:980,margin:"0 auto"}}>
   <div style={{color:"#8f9ab0",fontSize:13,letterSpacing:".12em"}}>НАСТРОЙКА · UB OS-RUS</div>
