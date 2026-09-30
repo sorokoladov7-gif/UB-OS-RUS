@@ -1,49 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims?.sub) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
-  const body = await request.json();
-  const { data: sessionData } = await supabase.auth.getSession();
-  const accessToken = sessionData.session?.access_token;
-  if (!accessToken) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
-
-  // The SSR client validates the cookie via getClaims(), but the RPC request
-  // must also carry the verified user JWT explicitly so PostgREST executes it
-  // as `authenticated` rather than falling back to `anon`.
-  const rpcSupabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://dibirswhvzebntwvdsyr.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_zv6MamcORITfKZTia4BxNg_YdIdkfyW",
-    { global: { headers: { Authorization: `Bearer ${accessToken}` } } },
-  );
-
-  const { data, error } = await rpcSupabase.rpc("bootstrap_business_v2", {
-    p_organization_name: body.organizationName,
-    p_organization_slug: body.organizationSlug,
-    p_workspace_name: body.workspaceName,
-    p_workspace_slug: body.workspaceSlug,
-    p_plan_key: body.planKey,
-    p_industry_key: body.industryKey,
-  });
-  if (error) {
-    const message = String(error.message || "BOOTSTRAP_FAILED");
-    if (message.includes("USER_ALREADY_HAS_ACTIVE_ORGANIZATION")) {
-      return NextResponse.json({ error: "BUSINESS_ALREADY_EXISTS", redirect: "/app" }, { status: 409 });
-    }
-    if (message.includes("PLAN_NOT_FOUND")) {
-      return NextResponse.json({ error: "Выбранный тариф недоступен. Обновите страницу и выберите тариф ещё раз." }, { status: 422 });
-    }
-    if (message.includes("INDUSTRY_PACKAGE_NOT_FOUND")) {
-      return NextResponse.json({ error: "Выбранное направление бизнеса недоступно. Обновите страницу и выберите направление ещё раз." }, { status: 422 });
-    }
-    if (message.includes("SLUG_ALREADY_EXISTS")) {
-      return NextResponse.json({ error: "Бизнес с таким названием уже существует. Укажите другое название." }, { status: 409 });
-    }
-    console.error("[api/onboarding] bootstrap failed", { code: message });
-    return NextResponse.json({ error: "Не удалось создать бизнес-систему. Попробуйте ещё раз." }, { status: 500 });
-  }
-  return NextResponse.json(data);
+export async function POST(request:NextRequest){
+ const supabase=await createSupabaseServerClient(); const {data:claims}=await supabase.auth.getClaims(); const uid=claims?.claims?.sub; if(!uid)return NextResponse.json({error:"AUTH_REQUIRED"},{status:401});
+ const {data:owner}=await supabase.from("platform_settings").select("owner_user_id").eq("id",true).maybeSingle(); if(owner?.owner_user_id===uid)return NextResponse.json({error:"PLATFORM_ADMIN_CANNOT_CREATE_USER_BUSINESS"},{status:403});
+ const body=await request.json(); const {data:sessionData}=await supabase.auth.getSession(); const accessToken=sessionData.session?.access_token; if(!accessToken)return NextResponse.json({error:"AUTH_REQUIRED"},{status:401});
+ const rpcSupabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL??"https://dibirswhvzebntwvdsyr.supabase.co",process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"sb_publishable_zv6MamcORITfKZTia4BxNg_YdIdkfyW",{global:{headers:{Authorization:`Bearer ${accessToken}`}}});
+ const {data,error}=await rpcSupabase.rpc("bootstrap_business_v2",{p_organization_name:body.organizationName,p_organization_slug:body.organizationSlug,p_workspace_name:body.workspaceName,p_workspace_slug:body.workspaceSlug,p_plan_key:body.planKey,p_industry_key:body.industryKey});
+ if(error){const message=String(error.message||"BOOTSTRAP_FAILED");if(message.includes("USER_ALREADY_HAS_ACTIVE_ORGANIZATION"))return NextResponse.json({error:"BUSINESS_ALREADY_EXISTS",redirect:"/app"},{status:409});if(message.includes("PLAN_NOT_FOUND"))return NextResponse.json({error:"Выбранный тариф недоступен. Обновите страницу и выберите тариф ещё раз."},{status:422});if(message.includes("INDUSTRY_PACKAGE_NOT_FOUND"))return NextResponse.json({error:"Выбранное направление бизнеса недоступно. Обновите страницу и выберите направление ещё раз."},{status:422});if(message.includes("SLUG_ALREADY_EXISTS"))return NextResponse.json({error:"Бизнес с таким названием уже существует. Укажите другое название."},{status:409});console.error("[api/onboarding] bootstrap failed",{code:message});return NextResponse.json({error:"Не удалось создать бизнес-систему. Попробуйте ещё раз."},{status:500});}
+ return NextResponse.json(data);
 }
