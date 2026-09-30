@@ -32,6 +32,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ok:true,...result,requestedExplicitModel:explicitModel});
   } catch(error) {
     const message=error instanceof Error?error.message:"AI_PROVIDER_ERROR";
-    return NextResponse.json({ok:false,error:message},{status:502});
+    if(workspaceId) {
+      await supabase.from("ai_runs").insert({
+        workspace_id:workspaceId,
+        provider:model.provider,
+        model:model.model,
+        status:"failed",
+        input:{message:String(body.message)},
+        output:{error:message},
+        started_at:new Date(started).toISOString(),
+        finished_at:new Date().toISOString(),
+      });
+    }
+    const friendly =
+      message === "AI_API_KEY_REQUIRED" ? "Для этой модели не задан API-ключ." :
+      message === "AI_BASE_URL_REQUIRED" ? "Для этой модели не задан Base URL." :
+      message === "AI_MODEL_DISABLED" ? "Модель отключена." :
+      /^AI_PROVIDER_HTTP_429/.test(message) ? "Модель временно ограничила запросы. Попробуйте ещё раз." :
+      /^AI_PROVIDER_HTTP_5/.test(message) ? "Провайдер AI временно недоступен. Попробуйте ещё раз." :
+      message;
+    return NextResponse.json({ok:false,error:message,message:friendly},{status:502});
   }
 }
