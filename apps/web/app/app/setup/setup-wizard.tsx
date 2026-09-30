@@ -7,7 +7,7 @@ export default function SetupWizard({workspace,modules,installed,recommended,ind
  const [selected,setSelected]=useState<Set<string>>(()=>new Set(modules.filter(m=>recommended.includes(m.key)||installedKeys.has(m.key)).map(m=>m.key)));
  const [step,setStep]=useState(1);const[busy,setBusy]=useState(false);const[error,setError]=useState("");
  const toggle=(key:string)=>setSelected(p=>{const n=new Set(p);n.has(key)?n.delete(key):n.add(key);return n});
- async function finish(){setBusy(true);setError("");try{const r=await fetch("/api/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({workspaceId:workspace.id,modules:[...selected]})});const j=await r.json().catch(()=>({}));if(!r.ok){setError(j.error||"Не удалось настроить систему.");setBusy(false);return}router.push("/app");router.refresh()}catch{setError("Не удалось связаться с сервером.");setBusy(false)}}
+ async function finish(){setBusy(true);setError("");try{const r=await fetch("/api/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({workspaceId:workspace.id,modules:[...selected]})});const j=await r.json().catch(()=>({}));if(!r.ok){setError(j.error||"Не удалось настроить систему.");setBusy(false);return}router.push("/app?launched=1");router.refresh()}catch{setError("Не удалось связаться с сервером.");setBusy(false)}}
  return <main style={{minHeight:"100vh",background:"#090c12",color:"#f7f8fa",padding:"28px 18px",fontFamily:"system-ui"}}><div style={{maxWidth:1000,margin:"0 auto"}}>
   <div style={{fontSize:12,letterSpacing:".14em",color:"#8793aa"}}>UB OS-RUS · МАСТЕР НАСТРОЙКИ</div>
   <h1 style={{fontSize:"clamp(34px,6vw,58px)",lineHeight:1.03,margin:"12px 0"}}>Настроим систему под ваш бизнес.</h1>
