@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
 
 export function isFreeOpenRouterModel(model: string): boolean {
   const value = String(model || "").trim();
@@ -43,9 +43,7 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   if (provider === "gemini" || provider === "google") {
     if (!model.api_key) throw new Error("AI_API_KEY_REQUIRED");
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model.model)}:generateContent?key=${encodeURIComponent(model.api_key)}`;
-    const contents = [{ role: "user", parts: [{ text: system ? system + "\
-\
-" + message : message }] }];
+    const contents = [{ role: "user", parts: [{ text: system ? system + "\n\n" + message : message }] }];
     const response = await fetch(url, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({contents}), cache:"no-store" });
     const json = await response.json().catch(()=>({}));
     if (!response.ok) throw new Error(`AI_PROVIDER_HTTP_${response.status}: ${String(json?.error?.message || "AI_PROVIDER_ERROR")}`);
@@ -75,32 +73,34 @@ export async function runAiModel(model: AiModelRuntime, message: string, system?
   return { text, provider:model.provider, model:model.model };
 }
 
+/**
+ * Platform models are server-only. Regular users authenticate through the
+ * normal SSR client, while this runtime catalog is fetched with a separate
+ * server secret so API keys never enter the browser or user JWT context.
+ */
+async function getPlatformRuntimeModels(): Promise<AiModelRuntime[]> {
+  const supabase = createSupabaseServiceRoleClient();
+  const { data, error } = await supabase.rpc("platform_ai_runtime_models");
+  if (error) throw new Error(`AI_PLATFORM_RUNTIME_ERROR: ${error.message}`);
+  return (Array.isArray(data) ? data : []) as AiModelRuntime[];
+}
+
 export async function getPlatformDefaultAiModel(): Promise<AiModelRuntime | null> {
-  const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.rpc("admin_get_ai_model_runtime", { p_id: null });
-  if (!data?.[0]) return null;
-  const model = data[0] as AiModelRuntime;
+  const models = await getPlatformRuntimeModels();
+  const model = models.find((x) => x.enabled !== false);
+  if (!model) return null;
   if (String(model.provider || "").toLowerCase() === "openrouter" && !isFreeOpenRouterModel(model.model)) return null;
   return model;
 }
 
 export async function getPlatformFallbackAiModels(excludeId: string): Promise<AiModelRuntime[]> {
-  const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.rpc("admin_list_ai_models");
-  const rows = Array.isArray(data) ? data : [];
-  const result: AiModelRuntime[] = [];
-  for (const row of rows
-    .filter((x:any) => x?.id && x.id !== excludeId && x.enabled !== false)
-    .filter((x:any) => String(x?.role || "").toLowerCase() === "fallback" || !x?.role)
-    .sort((a:any,b:any) => Number(a.priority ?? 100) - Number(b.priority ?? 100))
-    .slice(0, 5)) {
-    const { data: runtime } = await supabase.rpc("admin_get_ai_model_runtime", { p_id: String(row.id) });
-    if (!runtime?.[0] || runtime[0].enabled === false) continue;
-    const model = runtime[0] as AiModelRuntime;
-    if (String(model.provider || "").toLowerCase() === "openrouter" && !isFreeOpenRouterModel(model.model)) continue;
-    result.push(model);
-  }
-  return result;
+  const models = await getPlatformRuntimeModels();
+  return models
+    .filter((x) => x?.id && x.id !== excludeId && x.enabled !== false)
+    .filter((x) => String(x?.role || "").toLowerCase() === "fallback" || !x?.role)
+    .filter((x) => String(x.provider || "").toLowerCase() !== "openrouter" || isFreeOpenRouterModel(x.model))
+    .sort((a,b) => Number(a.priority ?? 100) - Number(b.priority ?? 100))
+    .slice(0, 5);
 }
 
 export async function runPlatformAiModelWithFallback(
@@ -136,7 +136,6 @@ export async function getDefaultAiModel(): Promise<AiModelRuntime | null> {
   if (error || !data?.[0]) return null;
   return data[0] as AiModelRuntime;
 }
-
 
 function isTransientAiError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error || "");
