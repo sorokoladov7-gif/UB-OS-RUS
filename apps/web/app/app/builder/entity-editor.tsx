@@ -5,7 +5,7 @@ type Field={id:string;key:string;name:string;field_type:string;required:boolean;
 type Status={id:string;key:string;name:string;position:number;is_default:boolean;is_terminal:boolean;config:any};
 type Entity={id:string;key:string;name:string;description:string|null;config?:any};
 const input={padding:11,borderRadius:10,border:"1px solid #303747",background:"#121620",color:"white",width:"100%",boxSizing:"border-box" as const};
-const types=["text","long_text","number","date","datetime","boolean","money","email","phone","select","relation"];
+const types=["text","long_text","number","date","datetime","boolean" ,"currency","email","phone","select","relation"];
 export function EntityEditor({entity,fields,statuses,entities,workspaceId}:{entity:Entity;fields:Field[];statuses:Status[];entities:Entity[];workspaceId:string}) {
  const router=useRouter(); const [name,setName]=useState(entity.name); const [relationKey,setRelationKey]=useState(""); const [relationName,setRelationName]=useState(""); const [relationTarget,setRelationTarget]=useState(""); const [description,setDescription]=useState(entity.description??""); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
  async function call(body:any){const r=await fetch("/api/builder/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Ошибка");return d}
